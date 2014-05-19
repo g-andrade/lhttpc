@@ -105,15 +105,14 @@ canonical_headers(Headers) ->
 %% @end
 %%------------------------------------------------------------------------------
 canonical_header({Name, Value}) ->
-    {Name, Value}.
-%%     {canonical_header_name(Name), Value}.
+    {canonical_header_name(Name), Value}.
 
-%% canonical_header_name(Name) when is_list(Name) ->
-%%     string:to_lower(Name);
-%% canonical_header_name(Name) when is_atom(Name) ->
-%%     canonical_header_name(atom_to_list(Name));
-%% canonical_header_name(Name) when is_binary(Name) ->
-%%     canonical_header_name(binary_to_list(Name)).
+canonical_header_name(Name) when is_list(Name) ->
+    string:to_lower(Name);
+canonical_header_name(Name) when is_atom(Name) ->
+    canonical_header_name(atom_to_list(Name));
+canonical_header_name(Name) when is_binary(Name) ->
+    canonical_header_name(binary_to_list(Name)).
 
 %%------------------------------------------------------------------------------
 %% @spec (Item) -> OtherItem
