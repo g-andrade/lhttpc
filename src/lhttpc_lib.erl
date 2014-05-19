@@ -368,7 +368,7 @@ add_content_headers(Hdrs, Body, false) ->
     case header_value("content-length", Hdrs) of
         undefined ->
             ContentLength = integer_to_list(iolist_size(Body)),
-            [{"Content-Length", ContentLength} | Hdrs];
+            [{"content-length", ContentLength} | Hdrs];
         _ -> % We have a content length
             Hdrs
     end;
@@ -376,7 +376,7 @@ add_content_headers(Hdrs, _Body, true) ->
     case {header_value("content-length", Hdrs),
          header_value("transfer-encoding", Hdrs)} of
         {undefined, undefined} ->
-            [{"Transfer-Encoding", "chunked"} | Hdrs];
+            [{"transfer-encoding", "chunked"} | Hdrs];
         {undefined, TransferEncoding} ->
             case string:to_lower(TransferEncoding) of
             "chunked" -> Hdrs;
@@ -397,7 +397,7 @@ add_content_headers(Hdrs, _Body, true) ->
 add_host(Hdrs, Host, Port) ->
     case header_value("host", Hdrs) of
         undefined ->
-            [{"Host", host(Host, Port) } | Hdrs];
+            [{"host", host(Host, Port) } | Hdrs];
         _ -> % We have a host
             Hdrs
     end.

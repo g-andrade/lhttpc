@@ -273,7 +273,7 @@ request(URL, Method, Hdrs, Body, Timeout, Options) ->
             Hdrs;
         _ ->
             Auth = "Basic " ++ binary_to_list(base64:encode(User ++ ":" ++ Passwd)),
-            lists:keystore("Authorization", 1, Hdrs, {"Authorization", Auth})
+            lists:keystore("authorization", 1, Hdrs, {"authorization", Auth})
     end,
     request(Host, Port, Ssl, Path, Method, Headers, Body, Timeout, Options).
 
