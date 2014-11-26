@@ -139,10 +139,14 @@ execute(From, Host, Port, Ssl, Path, Method, Hdrs0, Body, Options) ->
     {ChunkedUpload, Request} = lhttpc_lib:format_request(Path, NormalizedMethod,
         Hdrs, Host, Port, Body, PartialUpload),
     %SocketRequest = {socket, self(), Host, Port, Ssl},
+    UsePool = proplists:get_value(use_pool, Options, true),
     Pool = proplists:get_value(pool, Options, whereis(lhttpc_manager)),
     %% Get a socket for the pool or exit
     %Socket = lhttpc_manager:ensure_call(Pool, SocketRequest, Options),
-    Socket = lhttpc_manager:ensure_call(Pool, self(), Host, Port, Ssl, Options),
+    Socket = case UsePool of
+        false -> undefined;
+        true  -> lhttpc_manager:ensure_call(Pool, self(), Host, Port, Ssl, Options)
+    end,
     State = #client_state{
         host = Host,
         port = Port,
@@ -180,7 +184,11 @@ execute(From, Host, Port, Ssl, Path, Method, Hdrs0, Body, Options) ->
             % * The socket was closed remotely already
             % * Due to an error in this module (returning dead sockets for
             %   instance)
-            ok = lhttpc_manager:client_done(Pool, Host, Port, Ssl, NewSocket),
+            case UsePool of
+                false -> catch lhttpc_sock:close(NewSocket, Ssl);
+                true  ->
+                    ok = lhttpc_manager:client_done(Pool, Host, Port, Ssl, NewSocket)
+            end,
             {ok, R}
     end,
     {response, self(), Response}.
