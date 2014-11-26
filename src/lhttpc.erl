@@ -685,6 +685,9 @@ verify_options([{pool_max_size, Size} | Options])
         when is_integer(Size) orelse
              Size =:= infinity->
     verify_options(Options);
+verify_options([{use_pool, UsePool} | Options])
+		when is_boolean(UsePool) ->
+	verify_options(Options);
 verify_options([Option | _Rest]) ->
     erlang:error({bad_option, Option});
 verify_options([]) ->
