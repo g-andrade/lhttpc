@@ -129,7 +129,7 @@ send(Socket, Request, false) ->
     gen_tcp:send(Socket, Request).
 
 %%------------------------------------------------------------------------------
-%% @spec (Socket, Process, SslFlag) -> ok | {error, Reason}
+%% @spec (Socket, Process, SslFlag) -> {ok, pid()} | {error, Reason}
 %%   Socket = socket()
 %%   Process = pid() | atom()
 %%   SslFlag = boolean()
@@ -139,13 +139,19 @@ send(Socket, Request, false) ->
 %% @end
 %%------------------------------------------------------------------------------
 -spec controlling_process(socket(), pid() | atom(), boolean()) ->
-    ok | {error, atom()}.
+    {ok, pid()} | {error, atom()}.
 controlling_process(Socket, Controller, IsSsl) when is_atom(Controller) ->
     controlling_process(Socket, whereis(Controller), IsSsl);
 controlling_process(Socket, Pid, true) ->
-    ssl:controlling_process(Socket, Pid);
+    case ssl:controlling_process(Socket, Pid) of
+        ok  -> {ok, Pid};
+        Err -> Err
+    end;
 controlling_process(Socket, Pid, false) ->
-    gen_tcp:controlling_process(Socket, Pid).
+    case gen_tcp:controlling_process(Socket, Pid) of
+        ok  -> {ok, Pid};
+        Err -> Err
+    end.
 
 %%------------------------------------------------------------------------------
 %% @spec (Socket, Options, SslFlag) -> ok | {error, Reason}
