@@ -243,9 +243,15 @@ ensure_call(Pool, Pid, Host, Port, Ssl, Options) ->
 -spec client_done(pid(), host(), port_num(), boolean(), socket()) -> ok.
 client_done(Pool, Host, Port, Ssl, Socket) ->
     case lhttpc_sock:controlling_process(Socket, Pool, Ssl) of
-        ok ->
+        {ok, PoolPid} ->
             DoneMsg = {done, Host, Port, Ssl, Socket},
-            ok = gen_server:call(Pool, DoneMsg, infinity);
+            DeliveryStatus = (catch gen_server:call(PoolPid, DoneMsg, infinity)),
+            case DeliveryStatus of
+                {'EXIT', {noproc,_}} -> catch lhttpc_sock:close(Socket, Ssl);
+                {'EXIT', {killed,_}} -> catch lhttpc_sock:close(Socket, Ssl);
+                ok -> ok
+            end,
+            ok;
         _ ->
             ok
     end.
@@ -391,7 +397,7 @@ find_socket({_, _, Ssl} = Dest, Pid, State) ->
         {ok, [Socket | Sockets]} ->
             lhttpc_sock:setopts(Socket, [{active, false}], Ssl),
             case lhttpc_sock:controlling_process(Socket, Pid, Ssl) of
-                ok ->
+                {ok, Pid} ->
                     {_, Timer} = dict:fetch(Socket, State#httpc_man.sockets),
                     cancel_timer(Timer, Socket),
                     NewState = State#httpc_man{
@@ -515,7 +521,7 @@ deliver_socket(Socket, {_, _, Ssl} = Dest, State) ->
         {ok, {PidWaiter, _} = FromWaiter, Queues2} ->
             lhttpc_sock:setopts(Socket, [{active, false}], Ssl),
             case lhttpc_sock:controlling_process(Socket, PidWaiter, Ssl) of
-                ok ->
+                {ok, PidWaiter} ->
                     gen_server:reply(FromWaiter, {ok, Socket}),
                     monitor_client(Dest, FromWaiter, State#httpc_man{queues = Queues2});
                 {error, badarg} -> % Pid died, reuse for someone else
