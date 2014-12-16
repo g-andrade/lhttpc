@@ -37,6 +37,7 @@
 %%% @end
 %%------------------------------------------------------------------------------
 -module(lhttpc_manager).
+-compile([{parse_transform, lager_transform}]).
 
 %% Exported functions
 -export([start_link/0, start_link/1,
@@ -318,12 +319,24 @@ handle_call({connection_count, Destination}, _, State) ->
     {reply, Count, State};
 handle_call({done, Host, Port, Ssl, Socket}, {Pid, _} = From, State) ->
     gen_server:reply(From, ok),
-    Dest = {Host, Port, Ssl},
-    {Dest, MonRef} = dict:fetch(Pid, State#httpc_man.clients),
-    true = erlang:demonitor(MonRef, [flush]),
-    Clients2 = dict:erase(Pid, State#httpc_man.clients),
-    State2 = deliver_socket(Socket, Dest, State#httpc_man{clients = Clients2}),
-    {noreply, State2};
+    FinalState = case catch
+        begin
+            Dest = {Host, Port, Ssl},
+            {Dest, MonRef} = dict:fetch(Pid, State#httpc_man.clients),
+            true = erlang:demonitor(MonRef, [flush]),
+            Clients2 = dict:erase(Pid, State#httpc_man.clients),
+            deliver_socket(Socket, Dest, State#httpc_man{clients = Clients2})
+        end
+    of
+        #httpc_man{}=NewState ->
+            NewState;
+        UnexpectedExc ->
+            CloseStatus = (catch lhttpc_sock:close(Socket, Ssl)),
+            lager:notice("lhttpc_manager, unrecognized socket (close_status ~p) is done (error ~p)",
+                         [CloseStatus, UnexpectedExc]),
+            State
+    end,
+    {noreply, FinalState};
 handle_call(_, _, State) ->
     {reply, {error, unknown_request}, State}.
 
