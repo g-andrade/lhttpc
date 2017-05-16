@@ -267,14 +267,6 @@ client_done(Pool, Host, Port, Ssl, Socket) ->
 -spec init(any()) -> {ok, #httpc_man{}}.
 init(Options) ->
     process_flag(priority, high),
-    case lists:member({seed,1}, ssl:module_info(exports)) of
-        true ->
-            % Make sure that the ssl random number generator is seeded
-            % This was new in R13 (ssl-3.10.1 in R13B vs. ssl-3.10.0 in R12B-5)
-            apply(ssl, seed, [crypto:rand_bytes(255)]);
-        false ->
-            ok
-    end,
     Timeout = proplists:get_value(connection_timeout, Options),
     Size = proplists:get_value(pool_size, Options),
     {ok, #httpc_man{timeout = Timeout, max_pool_size = Size}}.
