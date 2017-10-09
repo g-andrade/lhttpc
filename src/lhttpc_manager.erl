@@ -332,8 +332,8 @@ handle_call({done, Host, Port, Ssl, Socket}, {Pid, _} = From, State) ->
             NewState;
         UnexpectedExc ->
             CloseStatus = (catch lhttpc_sock:close(Socket, Ssl)),
-            lager:notice("lhttpc_manager, unrecognized socket (close_status ~p) is done (error ~p)",
-                         [CloseStatus, UnexpectedExc]),
+            lager:info("lhttpc_manager, unrecognized socket (close_status ~p) is done (error ~p)",
+                       [CloseStatus, UnexpectedExc]),
             State
     end,
     {noreply, FinalState};
