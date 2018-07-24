@@ -37,7 +37,6 @@
 %%% @end
 %%------------------------------------------------------------------------------
 -module(lhttpc_manager).
--compile([{parse_transform, lager_transform}]).
 
 %% Exported functions
 -export([start_link/0, start_link/1,
