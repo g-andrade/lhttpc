@@ -12,7 +12,7 @@
   0},
  {<<"parse_trans">>,
   {git,"https://github.com/uwiger/parse_trans.git",
-       {ref,"f22fbf4982bc541518d4a9b3ad305810460724e5"}},
+       {ref,"76abb347c3c1d00fb0ccf9e4b43e22b3d2288484"}},
   0},
  {<<"ssl_verify_fun">>,
   {git,"https://github.com/deadtrickster/ssl_verify_fun.erl.git",
