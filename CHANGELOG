@@ -4,6 +4,7 @@ Version ?:
 * application version is now determined from git
 * clearer test case failures
 * improved test coverage by skipping tests that have been broken since time immemorial
+* safe HTTPS requests by default (toggleable through new 'verify_ssl_cert' request option)
 
 Version ?:
 * Add support for connect_options
