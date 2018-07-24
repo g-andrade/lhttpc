@@ -37,7 +37,7 @@
 %%% Eunit setup stuff
 
 start_app() ->
-    ok = application:load(lhttpc),
+    _ = application:load(lhttpc),
     ok = application:set_env(lhttpc, pool_size, 3),
     {ok, _} = application:ensure_all_started(lhttpc).
 
