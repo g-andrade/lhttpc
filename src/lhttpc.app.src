@@ -33,7 +33,7 @@
         {vsn, git},
         {modules, []},
         {registered, [lhttpc_manager]},
-        {applications, [kernel, stdlib, ssl, crypto]},
+        {applications, [kernel, stdlib, ssl, crypto, lager]},
   {mod, {lhttpc, nil}},
   {env, [{connection_timeout, 300000}, {pool_size, 50}]}
  ]}.
