@@ -491,9 +491,9 @@ chunked_encoding() ->
     ?assertEqual(<<"Again, great success!">>, body(SecondResponse)),
     ?assertEqual("ChUnKeD", lhttpc_lib:header_value("transfer-encoding",
             headers(SecondResponse))),
-    ?assertEqual("1", lhttpc_lib:header_value("trailer-1",
+    ?assertEqual("1", lhttpc_lib:header_value("Trailer-1",
             headers(SecondResponse))),
-    ?assertEqual("2", lhttpc_lib:header_value("trailer-2",
+    ?assertEqual("2", lhttpc_lib:header_value("Trailer-2",
             headers(SecondResponse))).
 
 partial_upload_identity() ->
