@@ -1,4 +1,9 @@
 Version ?:
+* application was rebar3ified
+* missing boot dependencies were added
+* application version is now determined from git
+
+Version ?:
 * Add support for connect_options
     * Enables the user to pass socket options, for instance ip and port,
       that will be used when connecting the socket

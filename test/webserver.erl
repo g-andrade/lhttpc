@@ -128,8 +128,8 @@ listen(ssl, Addr, Family) ->
         {active, false},
         {ip, Addr},
         {verify,0},
-        {keyfile, "../test/key.pem"},
-        {certfile, "../test/crt.pem"}
+        {keyfile, "test/key.pem"},
+        {certfile, "test/crt.pem"}
     ],
     {ok, LS} = ssl:listen(0, Opts),
     LS;
