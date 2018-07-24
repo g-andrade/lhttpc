@@ -344,7 +344,7 @@ read_proxy_connect_response(State, StatusCode, StatusText) ->
             ConnectOptions = State#client_state.connect_options,
             SslOptions = State#client_state.proxy_ssl_options,
             Timeout = State#client_state.connect_timeout,
-            State2 = case ssl:connect(Socket, ConnectOptions ++ SslOptions, Timeout) of
+            State2 = case ssl:connect(Socket, SslOptions ++ ConnectOptions, Timeout) of
                 {ok, SslSocket} ->
                     State#client_state{socket = SslSocket, proxy_setup = true};
                 {error, Reason} ->
