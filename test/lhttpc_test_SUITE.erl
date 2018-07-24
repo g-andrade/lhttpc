@@ -187,6 +187,10 @@ ssl_tests() ->
      ssl_get_ipv6,
      ssl_post,
      ssl_chunked,
+     expired_ssl_rejection,
+     wronghost_ssl_rejection,
+     selfsigned_ssl_rejection,
+     untrusted_ssl_rejection,
      connection_count % just check that it's 0 (last)
     ].
 
@@ -792,6 +796,26 @@ ssl_chunked(_Config) ->
             headers(SecondResponse))),
     ?assertEqual("2", lhttpc_lib:header_value("Trailer-2",
             headers(SecondResponse))).
+
+expired_ssl_rejection(_Config) ->
+    ?assertMatch(
+       {error, {{tls_alert,"certificate expired"}, _}},
+       lhttpc:request("https://expired.badssl.com", "GET", [], 5000)).
+
+wronghost_ssl_rejection(_Config) ->
+    ?assertMatch(
+       {error, {{tls_alert,"handshake failure"}, _}},
+       lhttpc:request("https://wrong.host.badssl.com", "GET", [], 5000)).
+
+selfsigned_ssl_rejection(_Config) ->
+    ?assertMatch(
+       {error, {{tls_alert,"bad certificate"}, _}},
+       lhttpc:request("https://self-signed.badssl.com", "GET", [], 5000)).
+
+untrusted_ssl_rejection(_Config) ->
+    ?assertMatch(
+       {error, {{tls_alert,"unknown ca"}, _}},
+       lhttpc:request("https://untrusted-root.badssl.com", "GET", [], 5000)).
 
 connection_count(_Config) ->
     timer:sleep(50), % give the TCP stack time to deliver messages
