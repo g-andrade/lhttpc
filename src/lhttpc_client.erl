@@ -47,7 +47,7 @@
         port = 80 :: port_num(),
         ssl = false :: boolean(),
         method :: string(),
-        request :: iolist(),
+        request :: undefined | iolist(),
         request_headers :: headers(),
         socket,
         connect_timeout = infinity :: timeout(),
