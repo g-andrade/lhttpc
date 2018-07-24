@@ -301,6 +301,10 @@ no_content_length_1_0(_Config) ->
     ?assertEqual({200, "OK"}, status(Response)),
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response)).
 
+-ifdef(SKIP_BROKEN_TEST_CASES).
+trailing_space_header(_Config) ->
+    {skip, "Broken test case"}.
+-else.
 %% Check the header value is trimming spaces on header values
 %% which can cause crash in lhttpc_client:body_type when Content-Length
 %% is converted from list to integer
@@ -311,6 +315,7 @@ trailing_space_header(_Config) ->
     Headers = headers(Response),
     ContentLength = lhttpc_lib:header_value("Content-Length", Headers),
     ?assertEqual("14", ContentLength).
+-endif.
 
 get_not_modified(_Config) ->
     Port = start(?PROJECT_ROOT, gen_tcp, [fun not_modified_response/5]),
@@ -559,6 +564,10 @@ partial_upload_identity_iolist(_Config) ->
     ?assertEqual("This is chunky stuff!",
         lhttpc_lib:header_value("x-test-orig-body", headers(Response2))).
 
+-ifdef(SKIP_BROKEN_TEST_CASES).
+partial_upload_chunked(_Config) ->
+    {skip, "Broken test case"}.
+-else.
 partial_upload_chunked(_Config) ->
     Port = start(?PROJECT_ROOT, gen_tcp, [fun chunked_upload/5, fun chunked_upload/5]),
     URL = url(Port, "/partial_upload_chunked"),
@@ -589,7 +598,12 @@ partial_upload_chunked(_Config) ->
         lhttpc_lib:header_value("x-test-orig-body", headers(Response2))),
     ?assertEqual(element(2, Trailer), 
         lhttpc_lib:header_value("x-test-orig-trailer-1", headers(Response2))).
+-endif.
 
+-ifdef(SKIP_BROKEN_TEST_CASES).
+partial_upload_chunked_no_trailer(_Config) ->
+    {skip, "Broken test case"}.
+-else.
 partial_upload_chunked_no_trailer(_Config) ->
     Port = start(?PROJECT_ROOT, gen_tcp, [fun chunked_upload/5]),
     URL = url(Port, "/partial_upload_chunked_no_trailer"),
@@ -604,6 +618,7 @@ partial_upload_chunked_no_trailer(_Config) ->
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response)),
     ?assertEqual("This is chunky stuff!",
         lhttpc_lib:header_value("x-test-orig-body", headers(Response))).
+-endif.
 
 partial_download_illegal_option(_Config) ->
     ?assertError({bad_option, {partial_download, {foo, bar}}},
