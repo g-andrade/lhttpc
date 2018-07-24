@@ -752,14 +752,14 @@ close_connection(_Config) ->
 ssl_get(_Config) ->
     Port = start(?PROJECT_ROOT, ssl, [fun simple_response/5]),
     URL = ssl_url(Port, "/simple"),
-    {ok, Response} = lhttpc:request(URL, "GET", [], 1000),
+    {ok, Response} = lhttpc:request(URL, "GET", [], <<>>, 1000, [{verify_ssl_cert, false}]),
     ?assertEqual({200, "OK"}, status(Response)),
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response)).
 
 ssl_get_ipv6(_Config) ->
     Port = start(?PROJECT_ROOT, ssl, [fun simple_response/5], inet6),
     URL = ssl_url(inet6, Port, "/simple"),
-    {ok, Response} = lhttpc:request(URL, "GET", [], 1000),
+    {ok, Response} = lhttpc:request(URL, "GET", [], <<>>, 1000, [{verify_ssl_cert, false}]),
     ?assertEqual({200, "OK"}, status(Response)),
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response)).
 
@@ -768,21 +768,21 @@ ssl_post(_Config) ->
     URL = ssl_url(Port, "/simple"),
     Body = "SSL Test <o/",
     BinaryBody = list_to_binary(Body),
-    {ok, Response} = lhttpc:request(URL, "POST", [], Body, 1000),
+    {ok, Response} = lhttpc:request(URL, "POST", [], Body, 1000, [{verify_ssl_cert, false}]),
     ?assertEqual({200, "OK"}, status(Response)),
     ?assertEqual(BinaryBody, body(Response)).
 
 ssl_chunked(_Config) ->
     Port = start(?PROJECT_ROOT, ssl, [fun chunked_response/5, fun chunked_response_t/5]),
     URL = ssl_url(Port, "/ssl_chunked"),
-    FirstResult = lhttpc:request(URL, get, [], 100),
+    FirstResult = lhttpc:request(URL, get, [], <<>>, 100, [{verify_ssl_cert, false}]),
     ?assertMatch({ok, _}, FirstResult),
     {ok, FirstResponse} = FirstResult,
     ?assertEqual({200, "OK"}, status(FirstResponse)),
     ?assertEqual(<<?DEFAULT_STRING>>, body(FirstResponse)),
     ?assertEqual("chunked", lhttpc_lib:header_value("transfer-encoding",
             headers(FirstResponse))),
-    SecondResult = lhttpc:request(URL, get, [], 100),
+    SecondResult = lhttpc:request(URL, get, [], <<>>, 100, [{verify_ssl_cert, false}]),
     {ok, SecondResponse} = SecondResult,
     ?assertEqual({200, "OK"}, status(SecondResponse)),
     ?assertEqual(<<"Again, great success!">>, body(SecondResponse)),
