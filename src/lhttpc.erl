@@ -43,6 +43,16 @@
          get_body_part/1, get_body_part/2
         ]).
 
+-ignore_xref(
+        [start/0, stop/0, start/2, stop/1,
+         request/4, request/5, request/6, request/9,
+         add_pool/1, add_pool/2, add_pool/3,
+         delete_pool/1,
+         send_body_part/2, send_body_part/3,
+         send_trailers/2, send_trailers/3,
+         get_body_part/1, get_body_part/2
+        ]).
+
 -include("lhttpc_types.hrl").
 -include("lhttpc.hrl").
 
