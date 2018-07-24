@@ -1,10 +1,23 @@
-Version ?:
-* application was rebar3ified
-* missing boot dependencies were added
-* application version is now determined from git
-* clearer test case failures
-* improved test coverage by skipping tests that have been broken since time immemorial
-* safe HTTPS requests by default (toggleable through new 'verify_ssl_cert' request option)
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+### Added
+- missing boot dependencies
+### Changed
+- application was rebar3ified
+- application version is now determined from git
+- HTTPS requests are now secure by default
+### Fixed
+- unintelligibility in which test cases failed (main suite)
+- low test coverage due to broken test cases that prevented others from running
+
+#######################################
+### OLD STYLE CHANGE LOG BELOW
+#######################################
 
 Version ?:
 * Add support for connect_options
