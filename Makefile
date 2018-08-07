@@ -1,34 +1,42 @@
-.PHONY: all release compile test clean rel doc build-plt dialyzer
+REBAR3_URL=https://s3.amazonaws.com/rebar3/rebar3
 
-PROJECT = lhttpc
+ifeq ($(wildcard rebar3),rebar3)
+	REBAR3 = $(CURDIR)/rebar3
+endif
 
-REBAR := ./rebar
-DIALYZER = dialyzer
+REBAR3 ?= $(shell test -e `which rebar3` 2>/dev/null && which rebar3 || echo "./rebar3")
 
-APPS = kernel stdlib sasl inets ssl public_key crypto compiler
+ifeq ($(REBAR3),)
+	REBAR3 = $(CURDIR)/rebar3
+endif
 
-all: compile doc
+.PHONY: all build clean check dialyzer xref test cover console
 
-compile:
-	$(REBAR) compile
+all: build
 
-doc:
-	$(REBAR) doc
+build: $(REBAR3)
+	@$(REBAR3) compile
 
-test:	compile
-	$(REBAR) eunit
+$(REBAR3):
+	wget $(REBAR3_URL) || curl -Lo rebar3 $(REBAR3_URL)
+	@chmod a+x rebar3
 
-release: all dialyze test
-	$(REBAR) release
+clean: $(REBAR3)
+	@$(REBAR3) clean
 
-clean:
-	$(REBAR) clean
+check: dialyzer xref
 
-build-plt: compile
-	@$(DIALYZER) --build_plt --output_plt .$(PROJECT).plt \
-		--apps $(APPS)
+dialyzer: $(REBAR3)
+	@$(REBAR3) dialyzer
 
-dialyzer:
-	@$(DIALYZER) --fullpath  --src ./src \
-		--plt .$(PROJECT).plt --no_native \
-		-Werror_handling  #-Wrace_conditions
+xref: $(REBAR3)
+	@$(REBAR3) xref
+
+test: $(REBAR3)
+	@$(REBAR3) as test ct, eunit
+
+cover: test
+	@$(REBAR3) cover
+
+console:
+	@$(REBAR3) shell --apps lhttpc

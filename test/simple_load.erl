@@ -13,7 +13,7 @@ start_client(Port, Clients) ->
 	start_client("localhost", Port, Clients).
 
 start_client(Host, Port, Clients) when Clients > 0 ->
-	start_applications([crypto, ssl, lhttpc]),
+    {ok, _} = application:ensure_all_started(lhttpc),
 	process_flag(trap_exit, true),
 	{ok, Body} = file:read_file("test/1M"),
 	URL = "http://" ++ Host ++ ":" ++ integer_to_list(Port) ++ "/static/1M",
@@ -72,13 +72,3 @@ handle_request(_Method, "/static/1M", {1,1}, _, EntityBody, State) ->
 
 terminate(_, _) ->
 	ok.
-
-start_applications(Apps) ->
-	Started = lists:map(fun({Name, _, _}) -> Name end,
-		application:which_applications()),
-	lists:foreach(fun(App) ->
-				case lists:member(App, Started) of
-					false -> ok = application:start(App);
-					true  -> ok
-				end
-		end, Apps).

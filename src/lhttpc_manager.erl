@@ -37,10 +37,21 @@
 %%% @end
 %%------------------------------------------------------------------------------
 -module(lhttpc_manager).
--compile([{parse_transform, lager_transform}]).
 
 %% Exported functions
 -export([start_link/0, start_link/1,
+         client_count/1,
+         connection_count/1, connection_count/2,
+         update_connection_timeout/2,
+         dump_settings/1,
+         list_pools/0,
+         set_max_pool_size/2,
+         ensure_call/6,
+         client_done/5
+        ]).
+
+-ignore_xref(
+        [start_link/0, start_link/1,
          client_count/1,
          connection_count/1, connection_count/2,
          update_connection_timeout/2,

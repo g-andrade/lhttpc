@@ -42,12 +42,14 @@
 -define(CONNECTION_HDR(HDRS, DEFAULT),
     string:to_lower(lhttpc_lib:header_value("connection", HDRS, DEFAULT))).
 
+-define(DEFAULT_VERIFY_SSL_CERT, true).
+
 -record(client_state, {
         host :: string(),
         port = 80 :: port_num(),
         ssl = false :: boolean(),
         method :: string(),
-        request :: iolist(),
+        request :: undefined | iolist(),
         request_headers :: headers(),
         socket,
         connect_timeout = infinity :: timeout(),
@@ -147,6 +149,16 @@ execute(From, Host, Port, Ssl, Path, Method, Hdrs0, Body, Options) ->
         false -> undefined;
         true  -> lhttpc_manager:ensure_call(Pool, self(), Host, Port, Ssl, Options)
     end,
+
+    BaseConnectOptions = proplists:get_value(connect_options, Options, []),
+    ConnectOptions =
+        case Ssl andalso proplists:get_value(verify_ssl_cert, Options, ?DEFAULT_VERIFY_SSL_CERT) of
+            true ->
+                lhttpc_security:secure_ssl_options(Host, BaseConnectOptions);
+            false ->
+                BaseConnectOptions
+        end,
+
     State = #client_state{
         host = Host,
         port = Port,
@@ -158,7 +170,7 @@ execute(From, Host, Port, Ssl, Path, Method, Hdrs0, Body, Options) ->
         socket = Socket,
         connect_timeout = proplists:get_value(connect_timeout, Options,
             infinity),
-        connect_options = proplists:get_value(connect_options, Options, []),
+        connect_options = ConnectOptions,
         attempts = 1 + proplists:get_value(send_retry, Options, 1),
         partial_upload = PartialUpload,
         upload_window = UploadWindowSize,

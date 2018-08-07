@@ -74,6 +74,7 @@
         {'proxy', string()} |
         {'proxy_ssl_options', socket_options()} |
         {'pool', pid() | atom()} |
+        {'verify_ssl_cert', boolean()} |
         invalid_option().
 
 -type options() :: [option()].

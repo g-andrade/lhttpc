@@ -31,16 +31,16 @@
 %%% @end
 -module(webserver).
 
--export([start/2, start/3, read_chunked/3]).
+-export([start/3, start/4, read_chunked/3]).
 -export([accept_connection/4]).
 
-start(Module, Responders) ->
-    start(Module, Responders, inet).
+start(ProjectRoot, Module, Responders) ->
+    start(ProjectRoot, Module, Responders, inet).
 
-start(Module, Responders, Family) ->
+start(ProjectRoot, Module, Responders, Family) ->
     case get_addr("localhost", Family) of
         {ok, Addr} ->
-            LS = listen(Module, Addr, Family),
+            LS = listen(ProjectRoot, Module, Addr, Family),
             spawn_link(?MODULE, accept_connection, [self(), Module, LS, Responders]),
             port(Module, LS);
         Error ->
@@ -120,7 +120,7 @@ server_loop(Module, Socket, Request, Headers, Responders) ->
             Module:close(Socket)
     end.
 
-listen(ssl, Addr, Family) ->
+listen(ProjectRoot, ssl, Addr, Family) ->
     Opts = [
         Family,
         {packet, http},
@@ -128,12 +128,12 @@ listen(ssl, Addr, Family) ->
         {active, false},
         {ip, Addr},
         {verify,0},
-        {keyfile, "../test/key.pem"},
-        {certfile, "../test/crt.pem"}
+        {keyfile, filename:join([ProjectRoot, "test", "key.pem"])},
+        {certfile, filename:join([ProjectRoot, "test", "crt.pem"])}
     ],
     {ok, LS} = ssl:listen(0, Opts),
     LS;
-listen(Module, Addr, Family) ->
+listen(_ProjectRoot, Module, Addr, Family) ->
     {ok, LS} = Module:listen(0, [
             Family,
             {packet, http},
