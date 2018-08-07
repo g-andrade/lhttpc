@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - application version is now determined from git
 - HTTPS requests are now secure by default
 ### Fixed
-- unintelligibility in which test cases failed (main suite)
+- unintelligibility of which test cases failed (main suite)
 - low test coverage due to broken test cases that prevented others from running
 
 #######################################
