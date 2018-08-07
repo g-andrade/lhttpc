@@ -2,7 +2,7 @@
 Whenever there's an interface breaking change (a change in the project's major version),
 required migration instructions will be detailed in this file.
 
-## UNRELEASED
+## From [2.x] to [3.x]
 ### Update
 - calls to lhttpc:request/{4,5,6,9} requesting HTTPS URLs which you **do** need to keep
   insecure, and only if you need to do so, by explicitly using the new `verify_ssl_cert` option:
