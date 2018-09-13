@@ -244,8 +244,8 @@ send_request(#client_state{socket = undefined} = State) ->
         exit:{{{badmatch, {error, {asn1, _}}}, _}, _} ->
             throw(ssl_decode_error);
         Type:Error ->
-                    error_logger:error_msg("Socket connection error: ~p ~p, ~p",
-                                           [Type, Error, erlang:get_stacktrace()])
+            error_logger:error_msg("Socket connection error: ~p ~p, ~p",
+                                   [Type, Error, erlang:get_stacktrace()])
     end;
 send_request(#client_state{proxy = #lhttpc_url{}, proxy_setup = false} = State) ->
 % use a proxy.
