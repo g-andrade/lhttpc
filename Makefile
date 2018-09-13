@@ -12,6 +12,8 @@ endif
 
 .PHONY: all build clean check dialyzer xref test cover console
 
+.NOTPARALLEL: check
+
 all: build
 
 build: $(REBAR3)
