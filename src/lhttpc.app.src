@@ -34,7 +34,7 @@
         {modules, []},
         {registered, [lhttpc_manager]},
         {applications, [kernel, stdlib, ssl, crypto,
-                        public_key,
+                        public_key, inets,
                         %% External dependencies
                         certifi,
                         parse_trans,
