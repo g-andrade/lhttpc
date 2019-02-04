@@ -495,7 +495,8 @@ read_response(State, Vsn, {StatusCode, _} = Status, Hdrs) ->
 %%------------------------------------------------------------------------------
 -spec handle_response_body(#client_state{}, {integer(), integer()},
                 http_status(), headers()) -> {http_status(), headers(), body()} |
-                                             {http_status(), headers()}.
+                                             {http_status(), headers()} |
+                                             {no_return, headers()}.
 handle_response_body(#client_state{partial_download = false} = State, Vsn,
         Status, Hdrs) ->
 %when {partial_download, PartialDownloadOptions} option is NOT used.

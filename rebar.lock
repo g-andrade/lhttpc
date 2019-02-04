@@ -12,5 +12,5 @@
   0},
  {<<"stacktrace_compat">>,
   {git,"https://github.com/g-andrade/stacktrace_compat.git",
-       {ref,"7c8d48f18f2474ba26546b65a63bd15c97fdc59a"}},
+       {ref,"188364dabe6e90a4ab90f10d90b5cea050cd0b56"}},
   0}].

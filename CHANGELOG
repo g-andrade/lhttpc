@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.5] - 2019-02-01
+### Fixed
+- potential compilation issues when importing lib. as a dependency on OTP 21
+
+## [3.0.4] - 2019-01-23
+### Fixed
+- bad specification of returned error reasons on :request/{4,5,6,9}
+
+## [3.0.3] - 2019-01-18
+### Fixed
+- dialyzer warnings
+
+## [3.0.2] - 2018-09-13
+### Fixed
+- OTP 21 compile-time warnings
+
 ## [3.0.1] - 2018-08-07
 ### Fixed
 - rebar2 support

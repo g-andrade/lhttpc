@@ -13,7 +13,7 @@
 %% Exported functions
 %%==============================================================================
 
--spec secure_ssl_options(string(), [ssl:option()]) -> [ssl:option(), ...].
+-spec secure_ssl_options(string(), [ssl:connect_option()]) -> [ssl:connect_option(), ...].
 secure_ssl_options(Host, Opts) ->
     lists:foldr(
       fun ({Key, Value}, Acc) ->
