@@ -11,13 +11,10 @@ test/*.log
 
 .eunit
 
-*.swp
-*.swo
 
 *.plt
 erl_crash.dump
 
-.DS_Store
 
 _build/
 log/
