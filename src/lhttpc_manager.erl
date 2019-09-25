@@ -237,6 +237,11 @@ ensure_call(Pool, Pid, Host, Port, Ssl, Options) ->
                     case lhttpc:add_pool(Pool, ConnTimeout, PoolMaxSize) of
                         {ok, _Pid} ->
                             ensure_call(Pool, Pid, Host, Port, Ssl, Options);
+                        {error, already_exists} ->
+                            % race condition
+                            Options2 = proplists:delete(pool_ensure, Options),
+                            Options3 = [{pool_ensure,false} | Options2],
+                            ensure_call(Pool, Pid, Host, Port, Ssl, Options3);
                         _ ->
                             %% Failed to create pool, exit as expected
                             exit({noproc, Reason})
