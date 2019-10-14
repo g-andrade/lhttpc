@@ -13,7 +13,11 @@
 %% Exported functions
 %%==============================================================================
 
+-ifdef(OTP_RELEASE).
+-spec secure_ssl_options(string(), [ssl:socket_option()]) -> [ssl:socket_option(), ...].
+-else.
 -spec secure_ssl_options(string(), [ssl:connect_option()]) -> [ssl:connect_option(), ...].
+-endif.
 secure_ssl_options(Host, Opts) ->
     lists:foldr(
       fun ({Key, Value}, Acc) ->
