@@ -53,6 +53,9 @@
          get_body_part/1, get_body_part/2
         ]).
 
+-export_type([result/0]).
+-export_type([headers/0]).
+
 -include("lhttpc_types.hrl").
 -include("lhttpc.hrl").
 
