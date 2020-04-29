@@ -10,7 +10,7 @@ ifeq ($(REBAR3),)
 	REBAR3 = $(CURDIR)/rebar3
 endif
 
-.PHONY: all build clean check dialyzer xref test cover console
+.PHONY: all build clean check dialyzer xref test cover shell
 
 .NOTPARALLEL: check
 
@@ -40,5 +40,5 @@ test: $(REBAR3)
 cover: test
 	@$(REBAR3) cover
 
-console:
-	@$(REBAR3) shell --apps lhttpc
+shell:
+	@$(REBAR3) shell
