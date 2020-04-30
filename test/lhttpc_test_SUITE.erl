@@ -798,21 +798,25 @@ ssl_chunked(_Config) ->
             headers(SecondResponse))).
 
 expired_ssl_rejection(_Config) ->
+    %% FIXME broken on OTP 21 because the format of the error has changed
     ?assertMatch(
        {error, {{tls_alert,"certificate expired"}, _}},
        lhttpc:request("https://expired.badssl.com", "GET", [], 5000)).
 
 wronghost_ssl_rejection(_Config) ->
+    %% FIXME broken on OTP 21 because the format of the error has changed
     ?assertMatch(
        {error, {{tls_alert,"handshake failure"}, _}},
        lhttpc:request("https://wrong.host.badssl.com", "GET", [], 5000)).
 
 selfsigned_ssl_rejection(_Config) ->
+    %% FIXME broken on OTP 21 because the format of the error has changed
     ?assertMatch(
        {error, {{tls_alert,"bad certificate"}, _}},
        lhttpc:request("https://self-signed.badssl.com", "GET", [], 5000)).
 
 untrusted_ssl_rejection(_Config) ->
+    %% FIXME broken on OTP 21 because the format of the error has changed
     ?assertMatch(
        {error, {{tls_alert,"unknown ca"}, _}},
        lhttpc:request("https://untrusted-root.badssl.com", "GET", [], 5000)).
