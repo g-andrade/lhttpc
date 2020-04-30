@@ -2,56 +2,71 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html)
+since version `3.0.0`.
 
 ## [Unreleased]
+
 ### Removed
 - support for OTP 17
 - support for OTP 18
 
 ## [3.1.0] - 2020-03-12
+
 ### Added
 - exported types lhttpc:result/0 and lhttpc:headers/0
+
 ### Changed
 - CA bundles, to base them on the latest Mozilla Included CA Certificate List
+
 ### Fixed
 - OTP 21 dialyzer warnings
 
 ## [3.0.7] - 2019-09-25
+#
 ### Fixed
 - unwarranted throwing of exception(s) to consumer during racy pool creation
 
 ## [3.0.6] - 2019-09-24
+#
 ### Fixed
 - warning on rebar3 over ssl_verify_fun's missing .app description
 
 ## [3.0.5] - 2019-02-01
+#
 ### Fixed
 - potential compilation issues when importing lib. as a dependency on OTP 21
 
 ## [3.0.4] - 2019-01-23
+#
 ### Fixed
 - bad specification of returned error reasons on :request/{4,5,6,9}
 
 ## [3.0.3] - 2019-01-18
+#
 ### Fixed
 - dialyzer warnings
 
 ## [3.0.2] - 2018-09-13
+#
 ### Fixed
 - OTP 21 compile-time warnings
 
 ## [3.0.1] - 2018-08-07
+#
 ### Fixed
 - rebar2 support
 
 ## [3.0.0] - 2018-08-07
+#
 ### Added
 - missing boot dependencies
+
 ### Changed
 - application was rebar3ified while still being usable as a rebar2 dependency
 - application version is now determined from git
 - HTTPS requests are now secure by default
+
 ### Fixed
 - unintelligibility of which test cases failed (main suite)
 - low test coverage due to broken test cases that prevented others from running
@@ -60,6 +75,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### OLD STYLE CHANGE LOG BELOW
 #######################################
 
+```
 Version ?:
 * Add support for connect_options
     * Enables the user to pass socket options, for instance ip and port,
@@ -144,3 +160,4 @@ Version 1.1.0:
 Version 1.0.0:
 * Initial version
 * Persistent connections have hardcoded timeout
+```
