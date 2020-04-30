@@ -7,9 +7,13 @@ since version `3.0.0`.
 
 ## [3.2.0] - 2020-04-30
 
+### Changed
+- source of dependencies to Hex, for quicker builds
+
 ### Removed
 - support for OTP 17
 - support for OTP 18
+- support for rebar2
 
 ## [3.1.0] - 2020-03-12
 
