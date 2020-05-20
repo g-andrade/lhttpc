@@ -423,7 +423,7 @@ simple_put(_Config) ->
 post(_Config) ->
     Port = start(?PROJECT_ROOT, gen_tcp, [fun copy_body/5]),
     URL = url(Port, "/post"),
-    {X, Y, Z} = now(),
+    {X, Y, Z} = erlang:timestamp(),
     Body = [
         "This is a rather simple post :)",
         integer_to_list(X),
@@ -439,7 +439,7 @@ post(_Config) ->
 post_100_continue(_Config) ->
     Port = start(?PROJECT_ROOT, gen_tcp, [fun copy_body_100_continue/5]),
     URL = url(Port, "/post"),
-    {X, Y, Z} = now(),
+    {X, Y, Z} = erlang:timestamp(),
     Body = [
         "This is a rather simple post :)",
         integer_to_list(X),
@@ -798,27 +798,23 @@ ssl_chunked(_Config) ->
             headers(SecondResponse))).
 
 expired_ssl_rejection(_Config) ->
-    %% FIXME broken on OTP 21 because the format of the error has changed
     ?assertMatch(
-       {error, {{tls_alert,"certificate expired"}, _}},
+       {error, {{tls_alert, {certificate_expired, _}}, _}},
        lhttpc:request("https://expired.badssl.com", "GET", [], 5000)).
 
 wronghost_ssl_rejection(_Config) ->
-    %% FIXME broken on OTP 21 because the format of the error has changed
     ?assertMatch(
-       {error, {{tls_alert,"handshake failure"}, _}},
+       {error, {{tls_alert, {handshake_failure, _}}, _}},
        lhttpc:request("https://wrong.host.badssl.com", "GET", [], 5000)).
 
 selfsigned_ssl_rejection(_Config) ->
-    %% FIXME broken on OTP 21 because the format of the error has changed
     ?assertMatch(
-       {error, {{tls_alert,"bad certificate"}, _}},
+       {error, {{tls_alert, {bad_certificate, _}}, _}},
        lhttpc:request("https://self-signed.badssl.com", "GET", [], 5000)).
 
 untrusted_ssl_rejection(_Config) ->
-    %% FIXME broken on OTP 21 because the format of the error has changed
     ?assertMatch(
-       {error, {{tls_alert,"unknown ca"}, _}},
+       {error, {{tls_alert, {unknown_ca, _}}, _}},
        lhttpc:request("https://untrusted-root.badssl.com", "GET", [], 5000)).
 
 connection_count(_Config) ->

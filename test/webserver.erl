@@ -127,7 +127,7 @@ listen(ProjectRoot, ssl, Addr, Family) ->
         binary,
         {active, false},
         {ip, Addr},
-        {verify,0},
+        {verify,verify_none},
         {keyfile, filename:join([ProjectRoot, "test", "key.pem"])},
         {certfile, filename:join([ProjectRoot, "test", "crt.pem"])}
     ],
@@ -153,7 +153,7 @@ get_addr(Host, Family) ->
 
 accept(ssl, ListenSocket) ->
     {ok, Socket} = ssl:transport_accept(ListenSocket, 10000),
-    ok = ssl:ssl_accept(Socket),
+    {ok, _} = ssl:handshake(Socket),
     Socket;
 accept(Module, ListenSocket) ->
     {ok, Socket} = Module:accept(ListenSocket, 1000),
