@@ -127,7 +127,7 @@ listen(ProjectRoot, ssl, Addr, Family) ->
         binary,
         {active, false},
         {ip, Addr},
-        {verify,verify_none},
+        verify_0(),
         {keyfile, filename:join([ProjectRoot, "test", "key.pem"])},
         {certfile, filename:join([ProjectRoot, "test", "crt.pem"])}
     ],
@@ -143,6 +143,14 @@ listen(_ProjectRoot, Module, Addr, Family) ->
         ]),
     LS.
 
+-ifdef(OTP_RELEASE).
+verify_0() ->
+    {verify,verify_none}.
+-else.
+verify_0() ->
+    {verify,0}.
+-endif.
+
 get_addr(Host, Family) ->
     case inet:getaddr(Host, Family) of
         {ok, Addr} ->
@@ -153,11 +161,20 @@ get_addr(Host, Family) ->
 
 accept(ssl, ListenSocket) ->
     {ok, Socket} = ssl:transport_accept(ListenSocket, 10000),
-    {ok, _} = ssl:handshake(Socket),
+    ok = ssl_ssl_accept(Socket),
     Socket;
 accept(Module, ListenSocket) ->
     {ok, Socket} = Module:accept(ListenSocket, 1000),
     Socket.
+
+-ifdef(OTP_RELEASE).
+ssl_ssl_accept(Socket) ->
+    {ok, _} = ssl:handshake(Socket),
+    ok.
+-else.
+ssl_ssl_accept(Socket) ->
+    ok = ssl:ssl_accept(Socket).
+-endif.
 
 setopts(ssl, Socket, Options) ->
     ssl:setopts(Socket, Options);
