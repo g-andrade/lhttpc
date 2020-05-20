@@ -1,4 +1,3 @@
-%%% -*- coding: latin-1 -*-
 -module(simple_load).
 
 -export([start_client/2, start_client/3]).
