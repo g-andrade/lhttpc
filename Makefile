@@ -37,6 +37,9 @@ xref: $(REBAR3)
 test: $(REBAR3)
 	@$(REBAR3) do ct, eunit
 
+test-travis: $(REBAR3)
+	@$(REBAR3) as travis-ci do ct, eunit
+
 cover: test
 	@$(REBAR3) cover
 

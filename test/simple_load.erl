@@ -1,6 +1,4 @@
-%%% -*- coding: latin-1 -*-
 -module(simple_load).
--behaviour(gen_httpd).
 
 -export([start_client/2, start_client/3]).
 -export([client/2]).
