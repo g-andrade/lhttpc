@@ -14,4 +14,4 @@ otp_release:
    - 22.2
    - 22.3
    - 23.0
-script: make check test
+script: make check test-travis
