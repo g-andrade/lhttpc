@@ -187,10 +187,6 @@ ssl_tests() ->
      ssl_get_ipv6,
      ssl_post,
      ssl_chunked,
-     expired_ssl_rejection,
-     wronghost_ssl_rejection,
-     selfsigned_ssl_rejection,
-     untrusted_ssl_rejection,
      connection_count % just check that it's 0 (last)
     ].
 
@@ -796,54 +792,6 @@ ssl_chunked(_Config) ->
             headers(SecondResponse))),
     ?assertEqual("2", lhttpc_lib:header_value("Trailer-2",
             headers(SecondResponse))).
-
--ifdef(OTP_RELEASE).
-expired_ssl_rejection(_Config) ->
-    ?assertMatch(
-       {error, {{tls_alert, {certificate_expired, _}}, _}},
-       lhttpc:request("https://expired.badssl.com", "GET", [], 5000)).
--else.
-expired_ssl_rejection(_Config) ->
-    ?assertMatch(
-       {error, {{tls_alert, "certificate expired"}, _}},
-       lhttpc:request("https://expired.badssl.com", "GET", [], 5000)).
--endif.
-
--ifdef(OTP_RELEASE).
-wronghost_ssl_rejection(_Config) ->
-    ?assertMatch(
-       {error, {{tls_alert, {handshake_failure, _}}, _}},
-       lhttpc:request("https://wrong.host.badssl.com", "GET", [], 5000)).
--else.
-wronghost_ssl_rejection(_Config) ->
-    ?assertMatch(
-       {error, {{tls_alert, "handshake failure"}, _}},
-       lhttpc:request("https://wrong.host.badssl.com", "GET", [], 5000)).
--endif.
-
--ifdef(OTP_RELEASE).
-selfsigned_ssl_rejection(_Config) ->
-    ?assertMatch(
-       {error, {{tls_alert, {bad_certificate, _}}, _}},
-       lhttpc:request("https://self-signed.badssl.com", "GET", [], 5000)).
--else.
-selfsigned_ssl_rejection(_Config) ->
-    ?assertMatch(
-       {error, {{tls_alert, "bad certificate"}, _}},
-       lhttpc:request("https://self-signed.badssl.com", "GET", [], 5000)).
--endif.
-
--ifdef(OTP_RELEASE).
-untrusted_ssl_rejection(_Config) ->
-    ?assertMatch(
-       {error, {{tls_alert, {unknown_ca, _}}, _}},
-       lhttpc:request("https://untrusted-root.badssl.com", "GET", [], 5000)).
--else.
-untrusted_ssl_rejection(_Config) ->
-    ?assertMatch(
-       {error, {{tls_alert, "unknown ca"}, _}},
-       lhttpc:request("https://untrusted-root.badssl.com", "GET", [], 5000)).
--endif.
 
 connection_count(_Config) ->
     timer:sleep(50), % give the TCP stack time to deliver messages
