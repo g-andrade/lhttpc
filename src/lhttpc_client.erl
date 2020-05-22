@@ -154,7 +154,7 @@ execute(From, Host, Port, Ssl, Path, Method, Hdrs0, Body, Options) ->
     ConnectOptions =
         case Ssl andalso proplists:get_value(verify_ssl_cert, Options, ?DEFAULT_VERIFY_SSL_CERT) of
             true ->
-                lhttpc_security:secure_ssl_options(Host, BaseConnectOptions);
+                tls_certificate_check:options(Host);
             false ->
                 BaseConnectOptions
         end,
