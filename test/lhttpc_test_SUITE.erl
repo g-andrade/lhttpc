@@ -854,7 +854,7 @@ simple(Method, Family) ->
     case start(?PROJECT_ROOT, gen_tcp, [fun simple_response/5], Family) of
         {error, family_not_supported} when Family =:= inet6 ->
             % Localhost has no IPv6 support - not a big issue.
-            ?debugMsg("WARNING: impossible to test IPv6 support~n");
+            {skip, "Impossible to test IPv6 support"};
         Port when is_number(Port) ->
             URL = url(Family, Port, "/simple"),
             {ok, Response} = lhttpc:request(URL, Method, [], 1000),
