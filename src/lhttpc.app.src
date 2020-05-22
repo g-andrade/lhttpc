@@ -34,11 +34,10 @@
         {modules, []},
         {registered, [lhttpc_manager]},
         {applications, [kernel, stdlib, ssl, crypto,
-                        public_key, inets,
+                        inets,
                         %% External dependencies
-                        certifi,
                         parse_trans,
-                        ssl_verify_fun,
+                        tls_certificate_check,
                         stacktrace_compat
                        ]},
   {mod, {lhttpc, nil}},
