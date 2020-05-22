@@ -2,7 +2,7 @@
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
 %%% All rights reserved.
-%%%
+%%% 
 %%% Redistribution and use in source and binary forms, with or without
 %%% modification, are permitted provided that the following conditions are met:
 %%%    * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
 %%%    * Neither the name of Erlang Training and Consulting Ltd. nor the
 %%%      names of its contributors may be used to endorse or promote products
 %%%      derived from this software without specific prior written permission.
-%%%
+%%% 
 %%% THIS SOFTWARE IS PROVIDED BY Erlang Training and Consulting Ltd. ''AS IS''
 %%% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 %%% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -588,7 +588,7 @@ partial_upload_chunked(_Config) ->
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response1)),
     ?assertEqual("This is chunky stuff!",
         lhttpc_lib:header_value("x-test-orig-body", headers(Response1))),
-    ?assertEqual(element(2, Trailer),
+    ?assertEqual(element(2, Trailer), 
         lhttpc_lib:header_value("x-test-orig-trailer-1", headers(Response1))),
     % Make sure it works with no body part in the original request as well
     Headers = [{"Transfer-Encoding", "chunked"}],
@@ -601,7 +601,7 @@ partial_upload_chunked(_Config) ->
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response2)),
     ?assertEqual("This is chunky stuff!",
         lhttpc_lib:header_value("x-test-orig-body", headers(Response2))),
-    ?assertEqual(element(2, Trailer),
+    ?assertEqual(element(2, Trailer), 
         lhttpc_lib:header_value("x-test-orig-trailer-1", headers(Response2))).
 -endif.
 
