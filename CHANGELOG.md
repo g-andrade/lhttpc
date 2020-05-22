@@ -13,6 +13,7 @@ since version `3.0.0`.
 ### Changed
 - Travis constraints: updated version as per our current reality; added `make check`
 - minimum supported version to 19.3
+- README.md: removed outdated info; added test-related info
 
 ### Fixed
 - some broken tests
