@@ -2,7 +2,7 @@
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
 %%% All rights reserved.
-%%% 
+%%%
 %%% Redistribution and use in source and binary forms, with or without
 %%% modification, are permitted provided that the following conditions are met:
 %%%    * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
 %%%    * Neither the name of Erlang Training and Consulting Ltd. nor the
 %%%      names of its contributors may be used to endorse or promote products
 %%%      derived from this software without specific prior written permission.
-%%% 
+%%%
 %%% THIS SOFTWARE IS PROVIDED BY Erlang Training and Consulting Ltd. ''AS IS''
 %%% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 %%% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -205,9 +205,14 @@ simple_get(_Config) ->
     simple(get),
     simple("GET").
 
+-ifdef(SKIP_IPV6_TEST_CASES).
+simple_get_ipv6(_Config) ->
+    {skip, "IPv6 support not considered"}.
+-else.
 simple_get_ipv6(_Config) ->
     simple(get, inet6),
     simple("GET", inet6).
+-endif.
 
 empty_get(_Config) ->
     Port = start(?PROJECT_ROOT, gen_tcp, [fun empty_body/5]),
@@ -583,7 +588,7 @@ partial_upload_chunked(_Config) ->
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response1)),
     ?assertEqual("This is chunky stuff!",
         lhttpc_lib:header_value("x-test-orig-body", headers(Response1))),
-    ?assertEqual(element(2, Trailer), 
+    ?assertEqual(element(2, Trailer),
         lhttpc_lib:header_value("x-test-orig-trailer-1", headers(Response1))),
     % Make sure it works with no body part in the original request as well
     Headers = [{"Transfer-Encoding", "chunked"}],
@@ -596,7 +601,7 @@ partial_upload_chunked(_Config) ->
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response2)),
     ?assertEqual("This is chunky stuff!",
         lhttpc_lib:header_value("x-test-orig-body", headers(Response2))),
-    ?assertEqual(element(2, Trailer), 
+    ?assertEqual(element(2, Trailer),
         lhttpc_lib:header_value("x-test-orig-trailer-1", headers(Response2))).
 -endif.
 
@@ -756,12 +761,17 @@ ssl_get(_Config) ->
     ?assertEqual({200, "OK"}, status(Response)),
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response)).
 
+-ifdef(SKIP_IPV6_TEST_CASES).
+ssl_get_ipv6(_Config) ->
+    {skip, "IPv6 support not considered"}.
+-else.
 ssl_get_ipv6(_Config) ->
     Port = start(?PROJECT_ROOT, ssl, [fun simple_response/5], inet6),
     URL = ssl_url(inet6, Port, "/simple"),
     {ok, Response} = lhttpc:request(URL, "GET", [], <<>>, 1000, [{verify_ssl_cert, false}]),
     ?assertEqual({200, "OK"}, status(Response)),
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response)).
+-endif.
 
 ssl_post(_Config) ->
     Port = start(?PROJECT_ROOT, ssl, [fun copy_body/5]),
