@@ -766,11 +766,16 @@ ssl_get_ipv6(_Config) ->
     {skip, "IPv6 support not considered"}.
 -else.
 ssl_get_ipv6(_Config) ->
-    Port = start(?PROJECT_ROOT, ssl, [fun simple_response/5], inet6),
-    URL = ssl_url(inet6, Port, "/simple"),
-    {ok, Response} = lhttpc:request(URL, "GET", [], <<>>, 1000, [{verify_ssl_cert, false}]),
-    ?assertEqual({200, "OK"}, status(Response)),
-    ?assertEqual(<<?DEFAULT_STRING>>, body(Response)).
+    case start(?PROJECT_ROOT, ssl, [fun simple_response/5], inet6) of
+        {error, family_not_supported} ->
+            % Localhost has no IPv6 support - not a big issue.
+            {skip, "Impossible to test IPv6 support"};
+        Port when is_number(Port) ->
+            URL = ssl_url(inet6, Port, "/simple"),
+            {ok, Response} = lhttpc:request(URL, "GET", [], <<>>, 1000, [{verify_ssl_cert, false}]),
+            ?assertEqual({200, "OK"}, status(Response)),
+            ?assertEqual(<<?DEFAULT_STRING>>, body(Response))
+    end.
 -endif.
 
 ssl_post(_Config) ->
