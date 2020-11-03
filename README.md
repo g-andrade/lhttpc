@@ -1,6 +1,6 @@
 # lhttpc
 
-[![](https://travis-ci.com/MiniclipPortugal/lhttpc.png?branch=master)](https://travis-ci.com/MiniclipPortugal/lhttpc)
+[![](https://travis-ci.com/miniclip/lhttpc.png?branch=master)](https://travis-ci.com/miniclip/lhttpc)
 [![Erlang][erlang badge]][erlang downloads]
 
 [erlang badge]: https://img.shields.io/badge/erlang-%3E%3D19.3-lightgrey
