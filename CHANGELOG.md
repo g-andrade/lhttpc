@@ -1,16 +1,19 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 since version `3.0.0`.
 
 ## [Unreleased]
 
 ### Added
+
 - all types that are exposed via API functions to their respective module's `export_type` sections
 
 ### Removed
+
 - lhttpc_types.hrl
 - lhttpc.hrl
 - defined types that are unused internally (and not exported)
@@ -18,22 +21,27 @@ since version `3.0.0`.
 ## [3.3.0] - 2020-05-22
 
 ### Added
+
 - compatibility with OTP 23
 
 ### Changed
+
 - Travis constraints: updated version as per our current reality; added `make check`
 - minimum supported version to 19.3
 - README.md: removed outdated info; added test-related info
 
 ### Fixed
+
 - some broken tests
 
 ## [3.2.0] - 2020-04-30
 
 ### Changed
+
 - source of dependencies to Hex, for quicker builds
 
 ### Removed
+
 - support for OTP 17
 - support for OTP 18
 - support for rebar2
@@ -41,60 +49,73 @@ since version `3.0.0`.
 ## [3.1.0] - 2020-03-12
 
 ### Added
+
 - exported types lhttpc:result/0 and lhttpc:headers/0
 
 ### Changed
+
 - CA bundles, to base them on the latest Mozilla Included CA Certificate List
 
 ### Fixed
+
 - OTP 21 dialyzer warnings
 
 ## [3.0.7] - 2019-09-25
-#
+
 ### Fixed
+
 - unwarranted throwing of exception(s) to consumer during racy pool creation
 
 ## [3.0.6] - 2019-09-24
-#
+
 ### Fixed
+
 - warning on rebar3 over ssl_verify_fun's missing .app description
 
 ## [3.0.5] - 2019-02-01
-#
+
 ### Fixed
+
 - potential compilation issues when importing lib. as a dependency on OTP 21
 
 ## [3.0.4] - 2019-01-23
-#
+
 ### Fixed
+
 - bad specification of returned error reasons on :request/{4,5,6,9}
 
 ## [3.0.3] - 2019-01-18
-#
+
 ### Fixed
+
 - dialyzer warnings
 
 ## [3.0.2] - 2018-09-13
-#
+
 ### Fixed
+
 - OTP 21 compile-time warnings
 
 ## [3.0.1] - 2018-08-07
-#
+
 ### Fixed
+
 - rebar2 support
 
 ## [3.0.0] - 2018-08-07
-#
+
 ### Added
+
 - missing boot dependencies
 
 ### Changed
+
 - application was rebar3ified while still being usable as a rebar2 dependency
 - application version is now determined from git
 - HTTPS requests are now secure by default
 
 ### Fixed
+
 - unintelligibility of which test cases failed (main suite)
 - low test coverage due to broken test cases that prevented others from running
 
