@@ -3,4 +3,3 @@ _build
 erl_crash.dump
 logs
 rebar3.crashdump
-TEST-*.xml
