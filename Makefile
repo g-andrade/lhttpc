@@ -1,47 +1,62 @@
-REBAR3_URL=https://s3.amazonaws.com/rebar3/rebar3
+SHELL := bash
+.ONESHELL:
+.SHELLFLAGS := -euc
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
 
-ifeq ($(wildcard rebar3),rebar3)
-	REBAR3 = $(CURDIR)/rebar3
-endif
-
-REBAR3 ?= $(shell test -e `which rebar3` 2>/dev/null && which rebar3 || echo "./rebar3")
-
-ifeq ($(REBAR3),)
-	REBAR3 = $(CURDIR)/rebar3
-endif
-
-.PHONY: all build clean check dialyzer xref test cover shell
-
-.NOTPARALLEL: check
-
-all: build
-
-build: $(REBAR3)
-	@$(REBAR3) compile
-
-$(REBAR3):
-	wget $(REBAR3_URL) || curl -Lo rebar3 $(REBAR3_URL)
-	@chmod a+x rebar3
-
-clean: $(REBAR3)
-	@$(REBAR3) clean
-
-check: dialyzer xref
-
-dialyzer: $(REBAR3)
-	@$(REBAR3) dialyzer
-
-xref: $(REBAR3)
-	@$(REBAR3) xref
-
-test: $(REBAR3)
-	@$(REBAR3) do ct, eunit
-
-test-travis: $(REBAR3)
-	@$(REBAR3) as travis-ci do ct, eunit
-
-cover: test
-	@$(REBAR3) cover
+version: upgrade clean compile check test edoc
+.PHONY: version
 
 shell:
-	@$(REBAR3) shell
+	@rebar3 shell
+.PHONY: shell
+
+upgrade: upgrade-rebar3_lint
+.PHONY: upgrade
+
+upgrade-rebar3_lint:
+	@rebar3 plugins upgrade rebar3_lint
+.PHONY: upgrade-rebar3_lint
+
+clean:
+	@rebar3 clean -a
+.PHONY: clean
+
+compile:
+	@rebar3 compile
+.PHONY: compile
+
+check: xref dialyzer elvis-rock
+.PHONY: check
+
+xref:
+	@rebar3 xref
+.PHONY: xref
+
+dialyzer:
+	@rebar3 dialyzer
+.PHONY: dialyzer
+
+elvis-rock:
+	@rebar3 lint
+.PHONY: elvis-rock
+
+test: eunit ct cover
+.PHONY: test
+
+eunit:
+	@rebar3 eunit
+.PHONY: eunit
+
+ct:
+	@rebar3 ct
+.PHONY: ct
+
+cover:
+	@rebar3 cover
+.PHONY: cover
+
+edoc:
+	@rebar3 edoc
+.PHONY: edoc
