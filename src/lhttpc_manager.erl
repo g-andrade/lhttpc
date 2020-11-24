@@ -184,7 +184,8 @@ start_link() ->
 
 
 %%------------------------------------------------------------------------------
-%% @doc
+%% @doc Starts and link to the gen server (with options).
+%% This is normally called by a supervisor.
 %% @end
 %%------------------------------------------------------------------------------
 -spec start_link([{atom(), non_neg_integer()}]) ->
