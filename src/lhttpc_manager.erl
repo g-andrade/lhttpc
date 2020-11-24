@@ -81,6 +81,7 @@
         max_pool_size = 50 :: non_neg_integer(),
         timeout = 300000 :: non_neg_integer()
     }).
+-type httpc_man() :: #httpc_man{}.
 
 %%==============================================================================
 %% Exported functions
@@ -239,7 +240,7 @@ ensure_call(Pool, Pid, Host, Port, Ssl, Options) ->
                         {error, already_exists} ->
                             % race condition
                             Options2 = proplists:delete(pool_ensure, Options),
-                            Options3 = [{pool_ensure,false} | Options2],
+                            Options3 = [{pool_ensure, false} | Options2],
                             ensure_call(Pool, Pid, Host, Port, Ssl, Options3);
                         _ ->
                             %% Failed to create pool, exit as expected
@@ -263,8 +264,8 @@ client_done(Pool, Host, Port, Ssl, Socket) ->
             DoneMsg = {done, Host, Port, Ssl, Socket},
             DeliveryStatus = (catch gen_server:call(PoolPid, DoneMsg, infinity)),
             case DeliveryStatus of
-                {'EXIT', {noproc,_}} -> catch lhttpc_sock:close(Socket, Ssl);
-                {'EXIT', {killed,_}} -> catch lhttpc_sock:close(Socket, Ssl);
+                {'EXIT', {noproc, _}} -> catch lhttpc_sock:close(Socket, Ssl);
+                {'EXIT', {killed, _}} -> catch lhttpc_sock:close(Socket, Ssl);
                 ok -> ok
             end,
             ok;
@@ -279,7 +280,7 @@ client_done(Pool, Host, Port, Ssl, Socket) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec init(any()) -> {ok, #httpc_man{}}.
+-spec init(any()) -> {ok, httpc_man()}.
 init(Options) ->
     process_flag(priority, high),
     Timeout = proplists:get_value(connection_timeout, Options),
@@ -289,8 +290,8 @@ init(Options) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec handle_call(any(), any(), #httpc_man{}) ->
-    {reply, any(), #httpc_man{}}.
+-spec handle_call(any(), any(), httpc_man()) ->
+    {reply, any(), httpc_man()}.
 handle_call({socket, Pid, Host, Port, Ssl}, {Pid, _Ref} = From, State) ->
     #httpc_man{
         max_pool_size = MaxSize,
@@ -313,7 +314,8 @@ handle_call({socket, Pid, Host, Port, Ssl}, {Pid, _Ref} = From, State) ->
             end
     end;
 handle_call(dump_settings, _, State) ->
-    {reply, [{max_pool_size, State#httpc_man.max_pool_size}, {timeout, State#httpc_man.timeout}], State};
+    {reply, [{max_pool_size, State#httpc_man.max_pool_size}, {timeout, State#httpc_man.timeout}],
+     State};
 handle_call(client_count, _, State) ->
     {reply, dict:size(State#httpc_man.clients), State};
 handle_call(connection_count, _, State) ->
@@ -339,8 +341,8 @@ handle_call({done, Host, Port, Ssl, Socket}, {Pid, _} = From, State) ->
             NewState;
         UnexpectedExc ->
             CloseStatus = (catch lhttpc_sock:close(Socket, Ssl)),
-            error_logger:info_msg("lhttpc_manager, unrecognized socket (close_status ~p) is done (error ~p)",
-                                  [CloseStatus, UnexpectedExc]),
+            error_logger:info_msg("lhttpc_manager, unrecognized socket (close_status ~p) is done "
+                                  "(error ~p)", [CloseStatus, UnexpectedExc]),
             State
     end,
     {noreply, FinalState};
@@ -350,7 +352,7 @@ handle_call(_, _, State) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec handle_cast(any(), #httpc_man{}) -> {noreply, #httpc_man{}}.
+-spec handle_cast(any(), httpc_man()) -> {noreply, httpc_man()}.
 handle_cast({update_timeout, Milliseconds}, State) ->
     {noreply, State#httpc_man{timeout = Milliseconds}};
 handle_cast({set_max_pool_size, Size}, State) ->
@@ -361,7 +363,7 @@ handle_cast(_, State) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec handle_info(any(), #httpc_man{}) -> {noreply, #httpc_man{}}.
+-spec handle_info(any(), httpc_man()) -> {noreply, httpc_man()}.
 handle_info({tcp_closed, Socket}, State) ->
     {noreply, remove_socket(Socket, State)};
 handle_info({ssl_closed, Socket}, State) ->
@@ -393,14 +395,14 @@ handle_info(_, State) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec terminate(any(), #httpc_man{}) -> ok.
+-spec terminate(any(), httpc_man()) -> ok.
 terminate(_, State) ->
     close_sockets(State#httpc_man.sockets).
 
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec code_change(any(), #httpc_man{}, any()) -> {'ok', #httpc_man{}}.
+-spec code_change(any(), httpc_man(), any()) -> {'ok', httpc_man()}.
 code_change(_, State, _) ->
     {ok, State}.
 

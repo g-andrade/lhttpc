@@ -123,7 +123,7 @@
 -type host() :: string() | {integer(), integer(), integer(), integer()}.
 -export_type([host/0]).
 
--type http_status() ::  {integer(), string() | binary()} | {'nil','nil'}.
+-type http_status() ::  {integer(), string() | binary()} | {'nil', 'nil'}.
 -export_type([http_status/0]).
 
 -type socket_options() :: [{atom(), term()} | atom()].
@@ -786,8 +786,8 @@ verify_options([{pool_max_size, Size} | Options])
              Size =:= infinity->
     verify_options(Options);
 verify_options([{use_pool, UsePool} | Options])
-		when is_boolean(UsePool) ->
-	verify_options(Options);
+        when is_boolean(UsePool) ->
+    verify_options(Options);
 verify_options([{verify_ssl_cert, VerifySslCert} | Options])
         when is_boolean(VerifySslCert) ->
     verify_options(Options);

@@ -1117,10 +1117,10 @@ close_connection(Module, Socket, _, _, _) ->
 not_modified_response(Module, Socket, _Request, _Headers, _Body) ->
     Module:send(
         Socket,
-		[
-			"HTTP/1.1 304 Not Modified\r\n"
-			"Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\r\n"
-		]
+        [
+            "HTTP/1.1 304 Not Modified\r\n"
+            "Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\r\n"
+        ]
     ).
 
 basic_auth_responder(User, Passwd) ->

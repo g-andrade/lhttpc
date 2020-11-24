@@ -211,7 +211,8 @@ parse_url_test_() ->
                          "joe",
                          "erlang"
                         ),
-                      lhttpc_lib:parse_url("http://joe:erlang@[1080:0:0:0:8:800:200C:417A]:180/foo/bar")),
+                      lhttpc_lib:parse_url("http://joe:erlang@[1080:0:0:0:8:800:200C:417A]"
+                                           ":180/foo/bar")),
 
         ?_assertEqual(lhttpc_client:new_url(
                          "www.example.com",

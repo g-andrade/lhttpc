@@ -306,7 +306,7 @@ split_port(https, [], []) ->
     {443, "/"};
 split_port(_, [], Port) ->
     {list_to_integer(lists:reverse(Port)), "/"};
-split_port(_,[$/ | _] = Path, Port) ->
+split_port(_, [$/ | _] = Path, Port) ->
     {list_to_integer(lists:reverse(Port)), Path};
 split_port(Scheme, [P | T], Port) ->
     split_port(Scheme, T, [P | Port]).

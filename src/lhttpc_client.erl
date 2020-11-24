@@ -68,6 +68,7 @@
         proxy_ssl_options = [] :: [any()],
         proxy_setup = false :: boolean()
     }).
+-type client_state() :: #client_state{}.
 
 -record(lhttpc_url, {
     host :: string(),
@@ -477,7 +478,7 @@ check_send_result(#client_state{socket = Sock, ssl = Ssl}, {error, Reason}) ->
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec read_response(#client_state{}) -> {any(), lhttpc:socket()} | no_return().
+-spec read_response(client_state()) -> {any(), lhttpc:socket()} | no_return().
 read_response(#client_state{socket = Socket, ssl = Ssl} = State) ->
     lhttpc_sock:setopts(Socket, [{packet, http}], Ssl),
     read_response(State, nil, {nil, nil}, []).
@@ -487,7 +488,7 @@ read_response(#client_state{socket = Socket, ssl = Ssl} = State) ->
 %% @doc @TODO This does not handle redirects at the moment.
 %% @end
 %%------------------------------------------------------------------------------
--spec read_response(#client_state{}, {integer(), integer()} | 'nil', lhttpc:http_status(),
+-spec read_response(client_state(), {integer(), integer()} | 'nil', lhttpc:http_status(),
        any()) -> {any(), lhttpc:socket()} | no_return().
 read_response(State, Vsn, {StatusCode, _} = Status, Hdrs) ->
     Socket = State#client_state.socket,
@@ -537,7 +538,7 @@ read_response(State, Vsn, {StatusCode, _} = Status, Hdrs) ->
 %% @doc Handles the reading of the response body.
 %% @end
 %%------------------------------------------------------------------------------
--spec handle_response_body(#client_state{}, {integer(), integer()},
+-spec handle_response_body(client_state(), {integer(), integer()},
                            lhttpc:http_status(), lhttpc:headers()) ->
         {lhttpc:http_status(), lhttpc:headers(), lhttpc:body()} |
         {lhttpc:http_status(), lhttpc:headers()} |
@@ -864,7 +865,7 @@ read_trailers(Socket, Ssl, Trailers, Hdrs) ->
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec reply_end_of_body(#client_state{}, any(), any()) -> {'no_return', any()}.
+-spec reply_end_of_body(client_state(), any(), any()) -> {'no_return', any()}.
 reply_end_of_body(#client_state{requester = Requester}, Trailers, Hdrs) ->
     Requester ! {http_eob, self(), Trailers},
     {no_return, Hdrs}.
@@ -898,7 +899,7 @@ read_partial_infinite_body(State = #client_state{requester = To}, Hdrs, Window)
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec read_infinite_body_part(#client_state{}) -> lhttpc:bodypart() | no_return().
+-spec read_infinite_body_part(client_state()) -> lhttpc:bodypart() | no_return().
 read_infinite_body_part(#client_state{socket = Socket, ssl = Ssl}) ->
     case lhttpc_sock:recv(Socket, Ssl) of
         {ok, Data} ->
