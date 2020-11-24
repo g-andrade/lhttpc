@@ -34,10 +34,7 @@
 %%------------------------------------------------------------------------------
 -module(lhttpc_client).
 
--export([request/9]).
-
--include("lhttpc_types.hrl").
--include("lhttpc.hrl").
+-export([request/9, new_url/4, new_url/6, url/2]).
 
 -define(CONNECTION_HDR(HDRS, DEFAULT),
     string:to_lower(lhttpc_lib:header_value("connection", HDRS, DEFAULT))).
@@ -46,11 +43,11 @@
 
 -record(client_state, {
         host :: string(),
-        port = 80 :: port_num(),
+        port = 80 :: lhttpc:port_num(),
         ssl = false :: boolean(),
         method :: string(),
         request :: undefined | iolist(),
-        request_headers :: headers(),
+        request_headers :: lhttpc:headers(),
         socket,
         connect_timeout = infinity :: timeout(),
         connect_options = [] :: [any()],
@@ -64,10 +61,55 @@
         part_size :: non_neg_integer() | infinity,
         %% in case of infinity we read whatever data we can get from
         %% the wire at that point or in case of chunked one chunk
-        proxy :: undefined | #lhttpc_url{},
+        proxy :: undefined | lhttpc:lhttpc_url(),
         proxy_ssl_options = [] :: [any()],
         proxy_setup = false :: boolean()
     }).
+
+-record(lhttpc_url, {
+    host :: string(),
+    port :: integer(),
+    path :: string(),
+    is_ssl:: boolean(),
+    user :: string(),
+    password :: string()
+}).
+-opaque lhttpc_url() :: #lhttpc_url{}.
+-export_type([lhttpc_url/0]).
+
+-spec new_url(Host :: string(),
+              Port :: integer(),
+              Path :: string(),
+              IsSSL :: boolean()) -> lhttpc_url().
+new_url(Host, Port, Path, IsSSL) ->
+    new_url(Host, Port, Path, IsSSL, "", "").
+
+-spec new_url(Host :: string(),
+              Port :: integer(),
+              Path :: string(),
+              IsSSL :: boolean(),
+              User :: string(),
+              Password :: string()) -> lhttpc_url().
+new_url(Host, Port, Path, IsSSL, User, Password) ->
+    #lhttpc_url{ host = Host,
+                 port = Port,
+                 path = Path,
+                 is_ssl = IsSSL,
+                 user = User,
+                 password = Password }.
+
+-spec url(LhttpcURL :: lhttpc_url(), host) -> string();
+         (LhttpcURL :: lhttpc_url(), port) -> integer();
+         (LhttpcURL :: lhttpc_url(), path) -> string();
+         (LhttpcURL :: lhttpc_url(), is_ssl) -> boolean();
+         (LhttpcURL :: lhttpc_url(), user) -> string();
+         (LhttpcURL :: lhttpc_url(), password) -> string().
+url(#lhttpc_url{ host = Host }, host) -> Host;
+url(#lhttpc_url{ port = Port }, port) -> Port;
+url(#lhttpc_url{ path = Path }, path) -> Path;
+url(#lhttpc_url{ is_ssl = IsSSL }, is_ssl) -> IsSSL;
+url(#lhttpc_url{ user = User }, user) -> User;
+url(#lhttpc_url{ password = Password }, password) -> Password.
 
 %%==============================================================================
 %% Exported functions
@@ -88,8 +130,8 @@
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec request(pid(), string(), port_num(), boolean(), string(),
-        method(), headers(), iolist(), options()) -> ok.
+-spec request(pid(), string(), lhttpc:port_num(), boolean(), string(),
+        lhttpc:method(), lhttpc:headers(), iolist(), lhttpc:options()) -> ok.
 request(From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options) ->
     Result = try
         execute(From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options)
@@ -247,13 +289,12 @@ send_request(#client_state{socket = undefined} = State) ->
             error_logger:error_msg("Socket connection error: ~p ~p, ~p",
                                    [Type, Error, erlang:get_stacktrace()])
     end;
-send_request(#client_state{proxy = #lhttpc_url{}, proxy_setup = false} = State) ->
+send_request(#client_state{proxy = _, proxy_setup = false} = State) ->
 % use a proxy.
-    #lhttpc_url{
-        user = User,
-        password = Passwd,
-        is_ssl = Ssl
-    } = State#client_state.proxy,
+    LhttpcUrl = State#client_state.proxy,
+    User = lhttpc:url(LhttpcUrl, user),
+    Passwd = lhttpc:url(LhttpcUrl, password),
+    Ssl = lhttpc:url(LhttpcUrl, is_ssl),
     #client_state{
         host = DestHost,
         port = Port,
@@ -316,7 +357,7 @@ send_request(State) ->
 %% @private
 %%------------------------------------------------------------------------------
 request_first_destination(#client_state{proxy = #lhttpc_url{} = Proxy}) ->
-    {Proxy#lhttpc_url.host, Proxy#lhttpc_url.port, Proxy#lhttpc_url.is_ssl};
+    {lhttpc:url(Proxy, host), lhttpc:url(Proxy, port), lhttpc:url(Proxy, is_ssl)};
 request_first_destination(#client_state{host = Host, port = Port, ssl = Ssl}) ->
     {Host, Port, Ssl}.
 
@@ -325,7 +366,7 @@ request_first_destination(#client_state{host = Host, port = Port, ssl = Ssl}) ->
 %%------------------------------------------------------------------------------
 read_proxy_connect_response(State, StatusCode, StatusText) ->
     Socket = State#client_state.socket,
-    ProxyIsSsl = (State#client_state.proxy)#lhttpc_url.is_ssl,
+    ProxyIsSsl = lhttpc:url((State#client_state.proxy), is_ssl),
     case lhttpc_sock:recv(Socket, ProxyIsSsl) of
         {ok, {http_response, _Vsn, Code, Reason}} ->
             read_proxy_connect_response(State, Code, Reason);
@@ -433,7 +474,7 @@ check_send_result(#client_state{socket = Sock, ssl = Ssl}, {error, Reason}) ->
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec read_response(#client_state{}) -> {any(), socket()} | no_return().
+-spec read_response(#client_state{}) -> {any(), lhttpc:socket()} | no_return().
 read_response(#client_state{socket = Socket, ssl = Ssl} = State) ->
     lhttpc_sock:setopts(Socket, [{packet, http}], Ssl),
     read_response(State, nil, {nil, nil}, []).
@@ -443,8 +484,8 @@ read_response(#client_state{socket = Socket, ssl = Ssl} = State) ->
 %% @doc @TODO This does not handle redirects at the moment.
 %% @end
 %%------------------------------------------------------------------------------
--spec read_response(#client_state{}, {integer(), integer()} | 'nil', http_status(),
-       any()) -> {any(), socket()} | no_return().
+-spec read_response(#client_state{}, {integer(), integer()} | 'nil', lhttpc:http_status(),
+       any()) -> {any(), lhttpc:socket()} | no_return().
 read_response(State, Vsn, {StatusCode, _} = Status, Hdrs) ->
     Socket = State#client_state.socket,
     Ssl = State#client_state.ssl,
@@ -494,9 +535,10 @@ read_response(State, Vsn, {StatusCode, _} = Status, Hdrs) ->
 %% @end
 %%------------------------------------------------------------------------------
 -spec handle_response_body(#client_state{}, {integer(), integer()},
-                http_status(), headers()) -> {http_status(), headers(), body()} |
-                                             {http_status(), headers()} |
-                                             {no_return, headers()}.
+                           lhttpc:http_status(), lhttpc:headers()) ->
+        {lhttpc:http_status(), lhttpc:headers(), lhttpc:body()} |
+        {lhttpc:http_status(), lhttpc:headers()} |
+        {no_return, lhttpc:headers()}.
 handle_response_body(#client_state{partial_download = false} = State, Vsn,
         Status, Hdrs) ->
 %when {partial_download, PartialDownloadOptions} option is NOT used.
@@ -527,7 +569,7 @@ handle_response_body(#client_state{partial_download = true} = State, Vsn,
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec has_body(method(), integer(), headers()) -> boolean().
+-spec has_body(lhttpc:method(), integer(), lhttpc:headers()) -> boolean().
 has_body("HEAD", _, _) ->
     % HEAD responses aren't allowed to include a body
     false;
@@ -558,7 +600,7 @@ has_body(_, _, _) ->
 %   closed (AFAIK, this was common in versions before 1.1).
 %% @end
 %%------------------------------------------------------------------------------
--spec body_type(headers()) -> 'chunked' | 'infinite' | {fixed_length, integer()}.
+-spec body_type(lhttpc:headers()) -> 'chunked' | 'infinite' | {fixed_length, integer()}.
 body_type(Hdrs) ->
     case lhttpc_lib:header_value("content-length", Hdrs) of
         undefined ->
@@ -802,7 +844,7 @@ read_chunk(Socket, Ssl, Size) ->
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec read_trailers(socket(), boolean(), any(), any()) ->
+-spec read_trailers(lhttpc:socket(), boolean(), any(), any()) ->
                            {any(), any()} | no_return().
 read_trailers(Socket, Ssl, Trailers, Hdrs) ->
     lhttpc_sock:setopts(Socket, [{packet, httph}], Ssl),
@@ -853,7 +895,7 @@ read_partial_infinite_body(State = #client_state{requester = To}, Hdrs, Window)
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec read_infinite_body_part(#client_state{}) -> bodypart() | no_return().
+-spec read_infinite_body_part(#client_state{}) -> lhttpc:bodypart() | no_return().
 read_infinite_body_part(#client_state{socket = Socket, ssl = Ssl}) ->
     case lhttpc_sock:recv(Socket, Ssl) of
         {ok, Data} ->
@@ -883,15 +925,15 @@ check_infinite_response(_, Hdrs) ->
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec read_infinite_body(socket(), headers(), boolean()) ->
-                        {binary(), headers()} | no_return().
+-spec read_infinite_body(lhttpc:socket(), lhttpc:headers(), boolean()) ->
+                        {binary(), lhttpc:headers()} | no_return().
 read_infinite_body(Socket, Hdrs, Ssl) ->
     read_until_closed(Socket, <<>>, Hdrs, Ssl).
 
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec read_until_closed(socket(), binary(), any(), boolean()) ->
+-spec read_until_closed(lhttpc:socket(), binary(), any(), boolean()) ->
                         {binary(), any()} | no_return().
 read_until_closed(Socket, Acc, Hdrs, Ssl) ->
     case lhttpc_sock:recv(Socket, Ssl) of
@@ -931,7 +973,7 @@ maybe_close_socket(Socket, Ssl, _, ReqHdrs, RespHdrs) ->
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec is_ipv6_host(host()) -> boolean().
+-spec is_ipv6_host(lhttpc:host()) -> boolean().
 is_ipv6_host(Host) ->
     case inet_parse:address(Host) of
         {ok, {_, _, _, _, _, _, _, _}} ->

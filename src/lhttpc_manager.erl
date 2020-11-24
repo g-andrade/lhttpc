@@ -73,9 +73,6 @@
 
 -behaviour(gen_server).
 
--include("lhttpc_types.hrl").
--include("lhttpc.hrl").
-
 -record(httpc_man, {
         destinations = dict:new(),
         sockets = dict:new(),
@@ -95,7 +92,7 @@
 %% specified lhttpc pool (manager).
 %% @end
 %%------------------------------------------------------------------------------
--spec dump_settings(pool_id()) -> list().
+-spec dump_settings(lhttpc:pool_id()) -> list().
 dump_settings(PidOrName) ->
     gen_server:call(PidOrName, dump_settings).
 
@@ -103,7 +100,7 @@ dump_settings(PidOrName) ->
 %% @doc Sets the maximum pool size for the specified pool.
 %% @end
 %%------------------------------------------------------------------------------
--spec set_max_pool_size(pool_id(), non_neg_integer()) -> ok.
+-spec set_max_pool_size(lhttpc:pool_id(), non_neg_integer()) -> ok.
 set_max_pool_size(PidOrName, Size) when is_integer(Size), Size > 0 ->
     gen_server:cast(PidOrName, {set_max_pool_size, Size}).
 
@@ -130,7 +127,7 @@ list_pools() ->
 %% specified lhttpc pool (manager).
 %% @end
 %%------------------------------------------------------------------------------
--spec client_count(pool_id()) -> non_neg_integer().
+-spec client_count(lhttpc:pool_id()) -> non_neg_integer().
 client_count(PidOrName) ->
     gen_server:call(PidOrName, client_count).
 
@@ -141,7 +138,7 @@ client_count(PidOrName) ->
 %% specified lhttpc pool (manager).
 %% @end
 %%------------------------------------------------------------------------------
--spec connection_count(pool_id()) -> non_neg_integer().
+-spec connection_count(lhttpc:pool_id()) -> non_neg_integer().
 connection_count(PidOrName) ->
     gen_server:call(PidOrName, connection_count).
 
@@ -157,7 +154,7 @@ connection_count(PidOrName) ->
 %% `Destination' maintained by the httpc manager.
 %% @end
 %%------------------------------------------------------------------------------
--spec connection_count(pool_id(), destination()) -> non_neg_integer().
+-spec connection_count(lhttpc:pool_id(), lhttpc:destination()) -> non_neg_integer().
 connection_count(PidOrName, {Host, Port, Ssl}) ->
     Destination = {string:to_lower(Host), Port, Ssl},
     gen_server:call(PidOrName, {connection_count, Destination}).
@@ -171,7 +168,7 @@ connection_count(PidOrName, {Host, Port, Ssl}) ->
 %% already managed will keep their timers.
 %% @end
 %%------------------------------------------------------------------------------
--spec update_connection_timeout(pool_id(), non_neg_integer()) -> ok.
+-spec update_connection_timeout(lhttpc:pool_id(), non_neg_integer()) -> ok.
 update_connection_timeout(PidOrName, Milliseconds) ->
     gen_server:cast(PidOrName, {update_timeout, Milliseconds}).
 
@@ -207,8 +204,9 @@ start_link(Options0) ->
 %% destination and returns it if it exists, 'undefined' otherwise.
 %% @end
 %%------------------------------------------------------------------------------
--spec ensure_call(pool_id(), pid(), host(), port_num(), boolean(), options()) ->
-                        socket() | 'no_socket'.
+-spec ensure_call(lhttpc:pool_id(), pid(), lhttpc:host(), lhttpc:port_num(), boolean(),
+                  lhttpc:options()) ->
+                        lhttpc:socket() | 'no_socket'.
 ensure_call(Pool, Pid, Host, Port, Ssl, Options) ->
     SocketRequest = {socket, Pid, Host, Port, Ssl},
     try gen_server:call(Pool, SocketRequest, infinity) of
@@ -257,7 +255,7 @@ ensure_call(Pool, Pid, Host, Port, Ssl, Options) ->
 %% which can be new or not.
 %% @end
 %%------------------------------------------------------------------------------
--spec client_done(pid(), host(), port_num(), boolean(), socket()) -> ok.
+-spec client_done(pid(), lhttpc:host(), lhttpc:port_num(), boolean(), lhttpc:socket()) -> ok.
 client_done(Pool, Host, Port, Ssl, Socket) ->
     case lhttpc_sock:controlling_process(Socket, Pool, Ssl) of
         {ok, PoolPid} ->

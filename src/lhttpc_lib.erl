@@ -44,9 +44,6 @@
          canonical_header/1
         ]).
 
--include("lhttpc_types.hrl").
--include("lhttpc.hrl").
-
 %%==============================================================================
 %% Exported functions
 %%==============================================================================
@@ -62,7 +59,7 @@
 %% check the match.
 %% @end
 %%------------------------------------------------------------------------------
--spec header_value(string(), headers()) -> undefined | term().
+-spec header_value(string(), lhttpc:headers()) -> undefined | term().
 header_value(Hdr, Hdrs) ->
     header_value(Hdr, Hdrs, undefined).
 
@@ -79,7 +76,7 @@ header_value(Hdr, Hdrs) ->
 %% If no match is found, `Default' is returned.
 %% @end
 %%------------------------------------------------------------------------------
--spec header_value(string(), headers(), term()) -> term().
+-spec header_value(string(), lhttpc:headers(), term()) -> term().
 header_value(Hdr, Headers, Default) ->
     case lists:keyfind(Hdr, 1, Headers) of
         false ->
@@ -134,21 +131,21 @@ maybe_atom_to_list(List) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec parse_url(string()) -> #lhttpc_url{}.
+-spec parse_url(string()) -> lhttpc:lhttpc_url().
 parse_url(URL) ->
     % XXX This should be possible to do with the re module?
     {Scheme, CredsHostPortPath} = split_scheme(URL),
     {User, Passwd, HostPortPath} = split_credentials(CredsHostPortPath),
     {Host, PortPath} = split_host(HostPortPath, []),
     {Port, Path} = split_port(Scheme, PortPath, []),
-    #lhttpc_url{
-        host = string:to_lower(Host),
-        port = Port,
-        path = Path,
-        user = User,
-        password = Passwd,
-        is_ssl = (Scheme =:= https)
-    }.
+    lhttpc:new_url(
+        string:to_lower(Host),
+        Port,
+        Path,
+        User,
+        Passwd,
+        (Scheme =:= https)
+    ).
 
 %%------------------------------------------------------------------------------
 %% @spec (Path, Method, Headers, Host, Port, Body, PartialUpload) -> Request
@@ -162,7 +159,7 @@ parse_url(URL) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec format_request(iolist(), method(), headers(), string(),
+-spec format_request(iolist(), lhttpc:method(), lhttpc:headers(), string(),
     integer(), iolist(), boolean()) -> {boolean(), iolist()}.
 format_request(Path, Method, Hdrs, Host, Port, Body, PartialUpload) ->
     AllHdrs = add_mandatory_hdrs(Method, Hdrs, Host, Port, Body, PartialUpload),
@@ -185,7 +182,7 @@ format_request(Path, Method, Hdrs, Host, Port, Body, PartialUpload) ->
 %% line.
 %% @end
 %%------------------------------------------------------------------------------
--spec normalize_method(method()) -> string().
+-spec normalize_method(lhttpc:method()) -> string().
 normalize_method(Method) when is_atom(Method) ->
     string:to_upper(atom_to_list(Method));
 normalize_method(Method) ->
@@ -203,7 +200,7 @@ dec(Else)                     -> Else.
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec format_hdrs(headers()) -> [string()].
+-spec format_hdrs(lhttpc:headers()) -> [string()].
 format_hdrs(Headers) ->
     format_hdrs(Headers, []).
 
@@ -349,8 +346,8 @@ format_body(Body, true) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec add_mandatory_hdrs(method(), headers(), host(), port_num(),
-                         iolist(), boolean()) -> headers().
+-spec add_mandatory_hdrs(lhttpc:method(), lhttpc:headers(), lhttpc:host(), lhttpc:port_num(),
+                         iolist(), boolean()) -> lhttpc:headers().
 add_mandatory_hdrs(Method, Hdrs, Host, Port, Body, PartialUpload) ->
     ContentHdrs = add_content_headers(Method, Hdrs, Body, PartialUpload),
     add_host(ContentHdrs, Host, Port).
@@ -360,7 +357,7 @@ add_mandatory_hdrs(Method, Hdrs, Host, Port, Body, PartialUpload) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec add_content_headers(string(), headers(), iolist(), boolean()) -> headers().
+-spec add_content_headers(string(), lhttpc:headers(), iolist(), boolean()) -> lhttpc:headers().
 add_content_headers("POST", Hdrs, Body, PartialUpload) ->
     add_content_headers(Hdrs, Body, PartialUpload);
 add_content_headers("PUT", Hdrs, Body, PartialUpload) ->
@@ -375,7 +372,7 @@ add_content_headers(_, Hdrs, _, _PartialUpload) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec add_content_headers(headers(), iolist(), boolean()) -> headers().
+-spec add_content_headers(lhttpc:headers(), iolist(), boolean()) -> lhttpc:headers().
 add_content_headers(Hdrs, Body, false) ->
     case header_value("content-length", Hdrs) of
         undefined ->
@@ -405,7 +402,7 @@ add_content_headers(Hdrs, _Body, true) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec add_host(headers(), host(), port_num()) -> headers().
+-spec add_host(lhttpc:headers(), lhttpc:host(), lhttpc:port_num()) -> lhttpc:headers().
 add_host(Hdrs, Host, Port) ->
     case header_value("host", Hdrs) of
         undefined ->
@@ -419,7 +416,7 @@ add_host(Hdrs, Host, Port) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec is_chunked(headers()) -> boolean().
+-spec is_chunked(lhttpc:headers()) -> boolean().
 is_chunked(Hdrs) ->
     TransferEncoding = string:to_lower(
         header_value("transfer-encoding", Hdrs, "undefined")),
@@ -433,7 +430,7 @@ is_chunked(Hdrs) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec host(host(), port_num()) -> any().
+-spec host(lhttpc:host(), lhttpc:port_num()) -> any().
 host(Host, 80)   -> maybe_ipv6_enclose(Host);
 % When proxying after an HTTP CONNECT session is established, squid doesn't
 % like the :443 suffix in the Host header.
@@ -445,7 +442,7 @@ host(Host, Port) -> [maybe_ipv6_enclose(Host), $:, integer_to_list(Port)].
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec maybe_ipv6_enclose(host()) -> host().
+-spec maybe_ipv6_enclose(lhttpc:host()) -> lhttpc:host().
 maybe_ipv6_enclose(Host) ->
     case inet_parse:address(Host) of
         {ok, {_, _, _, _, _, _, _, _}} ->
