@@ -31,11 +31,11 @@ check: xref dialyzer elvis-rock
 .PHONY: check
 
 xref:
-	@rebar3 xref
+	@rebar3 as test xref
 .PHONY: xref
 
 dialyzer:
-	@rebar3 dialyzer
+	@rebar3 as test dialyzer
 .PHONY: dialyzer
 
 elvis-rock:
