@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html)
 since version `3.0.0`.
 
+## [Unreleased]
+
+### Added
+- all types that are exposed via API functions to their respective module's `export_type` sections
+
+### Removed
+- lhttpc_types.hrl
+- lhttpc.hrl
+- defined types that are unused internally (and not exported)
+
 ## [3.3.0] - 2020-05-22
 
 ### Added
@@ -118,14 +128,14 @@ Version 1.2.5:
 * Fix for decoding chunked HTTP responses with extraneous whitespace
   (thanks to Bob Ippolito)
     * api.facebook.com includes extra whitespace in its chunked HTTP response
-      length, e.g. "6  \r\n" instead of "6\r\n". 
+      length, e.g. "6  \r\n" instead of "6\r\n".
 
 Version 1.2.4:
 * Fix handling of HTTP response code 304 (patch by Ben Slavin)
 
 Version 1.2.3:
 * Fix handling of unexpected 100 Continue response (patch by Magnus Henoch)
- 
+
 Version 1.2.2:
 * Fix Host header, add port number (reported by Benoit Chesneau)
 
@@ -143,7 +153,7 @@ Version 1.2.0:
     * The client can either return {ok, Result} or {error, Reason}. Reason
       (which wasn't very well defined before) can now be:
         * connection_closed: The server closed the connection on us (N times
-          in case it happens just after sending the request) 
+          in case it happens just after sending the request)
         * connect_timeout: If the TCP stack gives up or we hit the
           connect_timeout option
         * timeout: If the overall request timeout value is hit
@@ -165,14 +175,14 @@ Version 1.1.2:
 * Fix minor error with {active, once} instead of {active, true} in manager
 * Remove socket and try to find another if the manager can't set controlling
   process due to socket error
-* Improve test suite 
+* Improve test suite
 
 Version 1.1.1:
 * Fix problem with empty lists in dicts when last socket is consumed
-* Improve test suite to include cover report 
+* Improve test suite to include cover report
 
 Version 1.1.0:
-* Support for configurable connection timeout 
+* Support for configurable connection timeout
 
 Version 1.0.0:
 * Initial version
