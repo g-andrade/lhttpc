@@ -131,7 +131,7 @@ maybe_atom_to_list(List) ->
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
--spec parse_url(string()) -> lhttpc:lhttpc_url().
+-spec parse_url(string()) -> lhttpc_client:lhttpc_url().
 parse_url(URL) ->
     % XXX This should be possible to do with the re module?
     {Scheme, CredsHostPortPath} = split_scheme(URL),
@@ -142,9 +142,9 @@ parse_url(URL) ->
         string:to_lower(Host),
         Port,
         Path,
+        (Scheme =:= https),
         User,
-        Passwd,
-        (Scheme =:= https)
+        Passwd
     ).
 
 %%------------------------------------------------------------------------------

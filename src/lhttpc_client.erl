@@ -63,7 +63,7 @@
         part_size :: non_neg_integer() | infinity,
         %% in case of infinity we read whatever data we can get from
         %% the wire at that point or in case of chunked one chunk
-        proxy :: undefined | lhttpc:lhttpc_url(),
+        proxy :: undefined | lhttpc_url(),
         proxy_ssl_options = [] :: [any()],
         proxy_setup = false :: boolean()
     }).
@@ -291,7 +291,7 @@ send_request(#client_state{socket = undefined} = State) ->
             error_logger:error_msg("Socket connection error: ~p ~p, ~p",
                                    [Type, Error, erlang:get_stacktrace()])
     end;
-send_request(#client_state{proxy = _, proxy_setup = false} = State) ->
+send_request(#client_state{proxy = #lhttpc_url{}, proxy_setup = false} = State) ->
 % use a proxy.
     LhttpcUrl = State#client_state.proxy,
     User = url(LhttpcUrl, user),
