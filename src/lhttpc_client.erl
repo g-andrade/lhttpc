@@ -36,6 +36,8 @@
 
 -export([request/9, new_url/4, new_url/6, url/2]).
 
+-ignore_xref([new_url/4, new_url/6, url/2]).
+
 -define(CONNECTION_HDR(HDRS, DEFAULT),
     string:to_lower(lhttpc_lib:header_value("connection", HDRS, DEFAULT))).
 
@@ -292,9 +294,9 @@ send_request(#client_state{socket = undefined} = State) ->
 send_request(#client_state{proxy = _, proxy_setup = false} = State) ->
 % use a proxy.
     LhttpcUrl = State#client_state.proxy,
-    User = lhttpc:url(LhttpcUrl, user),
-    Passwd = lhttpc:url(LhttpcUrl, password),
-    Ssl = lhttpc:url(LhttpcUrl, is_ssl),
+    User = url(LhttpcUrl, user),
+    Passwd = url(LhttpcUrl, password),
+    Ssl = url(LhttpcUrl, is_ssl),
     #client_state{
         host = DestHost,
         port = Port,
@@ -357,7 +359,7 @@ send_request(State) ->
 %% @private
 %%------------------------------------------------------------------------------
 request_first_destination(#client_state{proxy = #lhttpc_url{} = Proxy}) ->
-    {lhttpc:url(Proxy, host), lhttpc:url(Proxy, port), lhttpc:url(Proxy, is_ssl)};
+    {url(Proxy, host), url(Proxy, port), url(Proxy, is_ssl)};
 request_first_destination(#client_state{host = Host, port = Port, ssl = Ssl}) ->
     {Host, Port, Ssl}.
 
@@ -366,7 +368,7 @@ request_first_destination(#client_state{host = Host, port = Port, ssl = Ssl}) ->
 %%------------------------------------------------------------------------------
 read_proxy_connect_response(State, StatusCode, StatusText) ->
     Socket = State#client_state.socket,
-    ProxyIsSsl = lhttpc:url((State#client_state.proxy), is_ssl),
+    ProxyIsSsl = url((State#client_state.proxy), is_ssl),
     case lhttpc_sock:recv(Socket, ProxyIsSsl) of
         {ok, {http_response, _Vsn, Code, Reason}} ->
             read_proxy_connect_response(State, Code, Reason);

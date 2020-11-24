@@ -138,7 +138,7 @@ parse_url(URL) ->
     {User, Passwd, HostPortPath} = split_credentials(CredsHostPortPath),
     {Host, PortPath} = split_host(HostPortPath, []),
     {Port, Path} = split_port(Scheme, PortPath, []),
-    lhttpc:new_url(
+    lhttpc_client:new_url(
         string:to_lower(Host),
         Port,
         Path,
