@@ -1,3 +1,4 @@
+%% @hidden
 %%% -*- coding: latin-1 -*-
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
@@ -42,8 +43,6 @@
          close/2
         ]).
 
--include("lhttpc_types.hrl").
-
 %%==============================================================================
 %% Exported functions
 %%==============================================================================
@@ -63,8 +62,8 @@
 %% `Options' are the normal `gen_tcp' or `ssl' Options.
 %% @end
 %%------------------------------------------------------------------------------
--spec connect(host(), integer(), socket_options(), timeout(), boolean()) ->
-    {ok, socket()} | {error, atom()}.
+-spec connect(lhttpc:host(), integer(), lhttpc:socket_options(), timeout(), boolean()) ->
+    {ok, lhttpc:socket()} | {error, atom()}.
 connect(Host, Port, Options, Timeout, true) ->
     ssl:connect(Host, Port, Options, Timeout);
 connect(Host, Port, Options, Timeout, false) ->
@@ -83,7 +82,7 @@ connect(Host, Port, Options, Timeout, false) ->
 %% packet.
 %% @end
 %%------------------------------------------------------------------------------
--spec recv(socket(), boolean()) ->
+-spec recv(lhttpc:socket(), boolean()) ->
     {ok, any()} | {error, atom()} | {error, {http_error, string()}}.
 recv(Socket, true) ->
     ssl:recv(Socket, 0);
@@ -102,7 +101,7 @@ recv(Socket, false) ->
 %% Will block untill `Length' bytes is available.
 %% @end
 %%------------------------------------------------------------------------------
--spec recv(socket(), integer(), boolean()) -> {ok, any()} | {error, atom()}.
+-spec recv(lhttpc:socket(), integer(), boolean()) -> {ok, any()} | {error, atom()}.
 recv(_, 0, _) ->
     {ok, <<>>};
 recv(Socket, Length, true) ->
@@ -122,7 +121,7 @@ recv(Socket, Length, false) ->
 %% gen_tcp module.
 %% @end
 %%------------------------------------------------------------------------------
--spec send(socket(), iolist() | binary(), boolean()) -> ok | {error, atom()}.
+-spec send(lhttpc:socket(), iolist() | binary(), boolean()) -> ok | {error, atom()}.
 send(Socket, Request, true) ->
     ssl:send(Socket, Request);
 send(Socket, Request, false) ->
@@ -138,7 +137,7 @@ send(Socket, Request, false) ->
 %% Sets the controlling proces for the `Socket'.
 %% @end
 %%------------------------------------------------------------------------------
--spec controlling_process(socket(), pid() | atom(), boolean()) ->
+-spec controlling_process(lhttpc:socket(), pid() | atom(), boolean()) ->
     {ok, pid()} | {error, atom()}.
 controlling_process(Socket, Controller, IsSsl) when is_atom(Controller) ->
     controlling_process(Socket, whereis(Controller), IsSsl);
@@ -163,7 +162,7 @@ controlling_process(Socket, Pid, false) ->
 %% Sets options for a socket. Look in `inet:setopts/2' for more info.
 %% @end
 %%------------------------------------------------------------------------------
--spec setopts(socket(), socket_options(), boolean()) -> ok | {error, atom()}.
+-spec setopts(lhttpc:socket(), lhttpc:socket_options(), boolean()) -> ok | {error, atom()}.
 setopts(Socket, Options, true) ->
     ssl:setopts(Socket, Options);
 setopts(Socket, Options, false) ->
@@ -178,7 +177,7 @@ setopts(Socket, Options, false) ->
 %% Closes a socket.
 %% @end
 %%------------------------------------------------------------------------------
--spec close(socket(), boolean()) -> ok | {error, atom()}.
+-spec close(lhttpc:socket(), boolean()) -> ok | {error, atom()}.
 close(Socket, true) ->
     ssl:close(Socket);
 close(Socket, false) ->

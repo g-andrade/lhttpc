@@ -2,7 +2,7 @@
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
 %%% All rights reserved.
-%%% 
+%%%
 %%% Redistribution and use in source and binary forms, with or without
 %%% modification, are permitted provided that the following conditions are met:
 %%%    * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
 %%%    * Neither the name of Erlang Training and Consulting Ltd. nor the
 %%%      names of its contributors may be used to endorse or promote products
 %%%      derived from this software without specific prior written permission.
-%%% 
+%%%
 %%% THIS SOFTWARE IS PROVIDED BY Erlang Training and Consulting Ltd. ''AS IS''
 %%% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 %%% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -109,8 +109,7 @@ all() ->
 
 groups() ->
     [{tcp_tests, [sequence], tcp_tests()},
-     {ssl_tests, [sequence], ssl_tests()},
-     {other_tests, [sequence], other_tests()}
+     {ssl_tests, [sequence], ssl_tests()}
     ].
 
 %% ------------------------------------------------------------------
@@ -156,7 +155,6 @@ tcp_tests() ->
      simple_put,
      post,
      post_100_continue,
-     bad_url,
      persistent_connection,
      request_timeout,
      connection_timeout,
@@ -188,10 +186,6 @@ ssl_tests() ->
      ssl_post,
      ssl_chunked,
      connection_count % just check that it's 0 (last)
-    ].
-
-other_tests() ->
-    [invalid_options
     ].
 
 %% ------------------------------------------------------------------
@@ -453,9 +447,6 @@ post_100_continue(_Config) ->
     ?assertEqual("OK", ReasonPhrase),
     ?assertEqual(iolist_to_binary(Body), body(Response)).
 
-bad_url(_Config) ->
-    ?assertError(_, lhttpc:request(ost, "GET", [], 100)).
-
 persistent_connection(_Config) ->
     Port = start(?PROJECT_ROOT, gen_tcp, [
             fun simple_response/5,
@@ -588,7 +579,7 @@ partial_upload_chunked(_Config) ->
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response1)),
     ?assertEqual("This is chunky stuff!",
         lhttpc_lib:header_value("x-test-orig-body", headers(Response1))),
-    ?assertEqual(element(2, Trailer), 
+    ?assertEqual(element(2, Trailer),
         lhttpc_lib:header_value("x-test-orig-trailer-1", headers(Response1))),
     % Make sure it works with no body part in the original request as well
     Headers = [{"Transfer-Encoding", "chunked"}],
@@ -601,7 +592,7 @@ partial_upload_chunked(_Config) ->
     ?assertEqual(<<?DEFAULT_STRING>>, body(Response2)),
     ?assertEqual("This is chunky stuff!",
         lhttpc_lib:header_value("x-test-orig-body", headers(Response2))),
-    ?assertEqual(element(2, Trailer), 
+    ?assertEqual(element(2, Trailer),
         lhttpc_lib:header_value("x-test-orig-trailer-1", headers(Response2))).
 -endif.
 
@@ -811,15 +802,6 @@ ssl_chunked(_Config) ->
 connection_count(_Config) ->
     timer:sleep(50), % give the TCP stack time to deliver messages
     ?assertEqual(0, lhttpc_manager:connection_count(lhttpc_manager)).
-
-invalid_options(_Config) ->
-    ?assertError({bad_option, bad_option},
-        lhttpc:request("http://localhost/", get, [], <<>>, 1000,
-            [bad_option, {foo, bar}])),
-    ?assertError({bad_option, {foo, bar}},
-        lhttpc:request("http://localhost/", get, [], <<>>, 1000,
-            [{foo, bar}, bad_option])).
-
 
 %%% Helpers functions
 
@@ -1135,10 +1117,10 @@ close_connection(Module, Socket, _, _, _) ->
 not_modified_response(Module, Socket, _Request, _Headers, _Body) ->
     Module:send(
         Socket,
-		[
-			"HTTP/1.1 304 Not Modified\r\n"
-			"Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\r\n"
-		]
+        [
+            "HTTP/1.1 304 Not Modified\r\n"
+            "Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\r\n"
+        ]
     ).
 
 basic_auth_responder(User, Passwd) ->

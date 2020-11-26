@@ -53,11 +53,98 @@
          get_body_part/1, get_body_part/2
         ]).
 
--export_type([result/0]).
+-type header() :: 'Cache-Control' | 'Connection' | 'Date' | 'Pragma'
+  | 'Transfer-Encoding' | 'Upgrade' | 'Via' | 'Accept' | 'Accept-Charset'
+  | 'Accept-Encoding' | 'Accept-Language' | 'Authorization' | 'From' | 'Host'
+  | 'If-Modified-Since' | 'If-Match' | 'If-None-Match' | 'If-Range'
+  | 'If-Unmodified-Since' | 'Max-Forwards' | 'Proxy-Authorization' | 'Range'
+  | 'Referer' | 'User-Agent' | 'Age' | 'Location' | 'Proxy-Authenticate'
+  | 'Public' | 'Retry-After' | 'Server' | 'Vary' | 'Warning'
+  | 'Www-Authenticate' | 'Allow' | 'Content-Base' | 'Content-Encoding'
+  | 'Content-Language' | 'Content-Length' | 'Content-Location'
+  | 'Content-Md5' | 'Content-Range' | 'Content-Type' | 'Etag'
+  | 'Expires' | 'Last-Modified' | 'Accept-Ranges' | 'Set-Cookie'
+  | 'Set-Cookie2' | 'X-Forwarded-For' | 'Cookie' | 'Keep-Alive'
+  | 'Proxy-Connection' | binary() | string().
+-export_type([header/0]).
+
+-type headers() :: [{header(), iodata()}].
 -export_type([headers/0]).
 
--include("lhttpc_types.hrl").
--include("lhttpc.hrl").
+-type method() :: string() | atom().
+-export_type([method/0]).
+
+-type pos_timeout() ::  pos_integer() | 'infinity'.
+-export_type([pos_timeout/0]).
+
+-type bodypart() :: iodata() | 'http_eob'.
+-export_type([bodypart/0]).
+
+-type socket() :: _.
+-export_type([socket/0]).
+
+-type port_num() :: 1..65535.
+-export_type([port_num/0]).
+
+-type poolsize() :: non_neg_integer() | atom().
+-export_type([poolsize/0]).
+
+-type invalid_option() :: any().
+-export_type([invalid_option/0]).
+
+-type pool_id() ::  pid() | atom().
+-export_type([pool_id/0]).
+
+-type destination() :: {string(), pos_integer(), boolean()}.
+-export_type([destination/0]).
+
+-type partial_download_option() ::
+        {'window_size', window_size()} |
+        {'part_size', non_neg_integer() | 'infinity'} |
+        invalid_option().
+-export_type([partial_download_option/0]).
+
+-type option() ::
+        {'connect_timeout', timeout()} |
+        {'send_retry', non_neg_integer()} |
+        {'partial_upload', non_neg_integer() | 'infinity'} |
+        {'partial_download', [partial_download_option()]} |
+        {'connect_options', socket_options()} |
+        {'proxy', string()} |
+        {'proxy_ssl_options', socket_options()} |
+        {'pool', pid() | atom()} |
+        {'verify_ssl_cert', boolean()} |
+        invalid_option().
+-export_type([option/0]).
+
+-type options() :: [option()].
+-export_type([options/0]).
+
+-type host() :: string() | {integer(), integer(), integer(), integer()}.
+-export_type([host/0]).
+
+-type http_status() ::  {integer(), string() | binary()} | {'nil', 'nil'}.
+-export_type([http_status/0]).
+
+-type socket_options() :: [{atom(), term()} | atom()].
+-export_type([socket_options/0]).
+
+-type window_size() :: non_neg_integer() | 'infinity'.
+-export_type([window_size/0]).
+
+-type upload_state() :: {pid(), window_size()}.
+-export_type([upload_state/0]).
+
+-type body()         :: binary()    |
+                        'undefined' | % HEAD request.
+                        pid().        % When partial_download option is used.
+-export_type([body/0]).
+
+-type result() ::
+        {ok, {{pos_integer(), string()}, headers(), body()}} |
+        {ok, upload_state()} |
+        {error, term()}.
+-export_type([result/0]).
 
 %%==============================================================================
 %% Exported functions
@@ -273,14 +360,14 @@ request(URL, Method, Hdrs, Body, Timeout) ->
 -spec request(string(), method(), headers(), iodata(),
               pos_timeout(), options()) -> result().
 request(URL, Method, Hdrs, Body, Timeout, Options) ->
-    #lhttpc_url{
-         host = Host,
-         port = Port,
-         path = Path,
-         is_ssl = Ssl,
-         user = User,
-         password = Passwd
-        } = lhttpc_lib:parse_url(URL),
+    LhttpcURL = lhttpc_lib:parse_url(URL),
+
+    Host = lhttpc_client:url(LhttpcURL, host),
+    Port = lhttpc_client:url(LhttpcURL, port),
+    Path = lhttpc_client:url(LhttpcURL, path),
+    Ssl = lhttpc_client:url(LhttpcURL, is_ssl),
+    User = lhttpc_client:url(LhttpcURL, user),
+    Passwd = lhttpc_client:url(LhttpcURL, password),
     Headers = case User of
         "" ->
             Hdrs;
@@ -699,8 +786,8 @@ verify_options([{pool_max_size, Size} | Options])
              Size =:= infinity->
     verify_options(Options);
 verify_options([{use_pool, UsePool} | Options])
-		when is_boolean(UsePool) ->
-	verify_options(Options);
+        when is_boolean(UsePool) ->
+    verify_options(Options);
 verify_options([{verify_ssl_cert, VerifySslCert} | Options])
         when is_boolean(VerifySslCert) ->
     verify_options(Options);

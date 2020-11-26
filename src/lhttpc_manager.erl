@@ -73,9 +73,6 @@
 
 -behaviour(gen_server).
 
--include("lhttpc_types.hrl").
--include("lhttpc.hrl").
-
 -record(httpc_man, {
         destinations = dict:new(),
         sockets = dict:new(),
@@ -84,6 +81,7 @@
         max_pool_size = 50 :: non_neg_integer(),
         timeout = 300000 :: non_neg_integer()
     }).
+-type httpc_man() :: #httpc_man{}.
 
 %%==============================================================================
 %% Exported functions
@@ -95,7 +93,7 @@
 %% specified lhttpc pool (manager).
 %% @end
 %%------------------------------------------------------------------------------
--spec dump_settings(pool_id()) -> list().
+-spec dump_settings(lhttpc:pool_id()) -> list().
 dump_settings(PidOrName) ->
     gen_server:call(PidOrName, dump_settings).
 
@@ -103,7 +101,7 @@ dump_settings(PidOrName) ->
 %% @doc Sets the maximum pool size for the specified pool.
 %% @end
 %%------------------------------------------------------------------------------
--spec set_max_pool_size(pool_id(), non_neg_integer()) -> ok.
+-spec set_max_pool_size(lhttpc:pool_id(), non_neg_integer()) -> ok.
 set_max_pool_size(PidOrName, Size) when is_integer(Size), Size > 0 ->
     gen_server:cast(PidOrName, {set_max_pool_size, Size}).
 
@@ -130,7 +128,7 @@ list_pools() ->
 %% specified lhttpc pool (manager).
 %% @end
 %%------------------------------------------------------------------------------
--spec client_count(pool_id()) -> non_neg_integer().
+-spec client_count(lhttpc:pool_id()) -> non_neg_integer().
 client_count(PidOrName) ->
     gen_server:call(PidOrName, client_count).
 
@@ -141,7 +139,7 @@ client_count(PidOrName) ->
 %% specified lhttpc pool (manager).
 %% @end
 %%------------------------------------------------------------------------------
--spec connection_count(pool_id()) -> non_neg_integer().
+-spec connection_count(lhttpc:pool_id()) -> non_neg_integer().
 connection_count(PidOrName) ->
     gen_server:call(PidOrName, connection_count).
 
@@ -157,7 +155,7 @@ connection_count(PidOrName) ->
 %% `Destination' maintained by the httpc manager.
 %% @end
 %%------------------------------------------------------------------------------
--spec connection_count(pool_id(), destination()) -> non_neg_integer().
+-spec connection_count(lhttpc:pool_id(), lhttpc:destination()) -> non_neg_integer().
 connection_count(PidOrName, {Host, Port, Ssl}) ->
     Destination = {string:to_lower(Host), Port, Ssl},
     gen_server:call(PidOrName, {connection_count, Destination}).
@@ -171,7 +169,7 @@ connection_count(PidOrName, {Host, Port, Ssl}) ->
 %% already managed will keep their timers.
 %% @end
 %%------------------------------------------------------------------------------
--spec update_connection_timeout(pool_id(), non_neg_integer()) -> ok.
+-spec update_connection_timeout(lhttpc:pool_id(), non_neg_integer()) -> ok.
 update_connection_timeout(PidOrName, Milliseconds) ->
     gen_server:cast(PidOrName, {update_timeout, Milliseconds}).
 
@@ -187,7 +185,8 @@ start_link() ->
 
 
 %%------------------------------------------------------------------------------
-%% @doc
+%% @doc Starts and link to the gen server (with options).
+%% This is normally called by a supervisor.
 %% @end
 %%------------------------------------------------------------------------------
 -spec start_link([{atom(), non_neg_integer()}]) ->
@@ -207,8 +206,9 @@ start_link(Options0) ->
 %% destination and returns it if it exists, 'undefined' otherwise.
 %% @end
 %%------------------------------------------------------------------------------
--spec ensure_call(pool_id(), pid(), host(), port_num(), boolean(), options()) ->
-                        socket() | 'no_socket'.
+-spec ensure_call(lhttpc:pool_id(), pid(), lhttpc:host(), lhttpc:port_num(), boolean(),
+                  lhttpc:options()) ->
+                        lhttpc:socket() | 'no_socket'.
 ensure_call(Pool, Pid, Host, Port, Ssl, Options) ->
     SocketRequest = {socket, Pid, Host, Port, Ssl},
     try gen_server:call(Pool, SocketRequest, infinity) of
@@ -240,7 +240,7 @@ ensure_call(Pool, Pid, Host, Port, Ssl, Options) ->
                         {error, already_exists} ->
                             % race condition
                             Options2 = proplists:delete(pool_ensure, Options),
-                            Options3 = [{pool_ensure,false} | Options2],
+                            Options3 = [{pool_ensure, false} | Options2],
                             ensure_call(Pool, Pid, Host, Port, Ssl, Options3);
                         _ ->
                             %% Failed to create pool, exit as expected
@@ -257,15 +257,15 @@ ensure_call(Pool, Pid, Host, Port, Ssl, Options) ->
 %% which can be new or not.
 %% @end
 %%------------------------------------------------------------------------------
--spec client_done(pid(), host(), port_num(), boolean(), socket()) -> ok.
+-spec client_done(pid(), lhttpc:host(), lhttpc:port_num(), boolean(), lhttpc:socket()) -> ok.
 client_done(Pool, Host, Port, Ssl, Socket) ->
     case lhttpc_sock:controlling_process(Socket, Pool, Ssl) of
         {ok, PoolPid} ->
             DoneMsg = {done, Host, Port, Ssl, Socket},
             DeliveryStatus = (catch gen_server:call(PoolPid, DoneMsg, infinity)),
             case DeliveryStatus of
-                {'EXIT', {noproc,_}} -> catch lhttpc_sock:close(Socket, Ssl);
-                {'EXIT', {killed,_}} -> catch lhttpc_sock:close(Socket, Ssl);
+                {'EXIT', {noproc, _}} -> catch lhttpc_sock:close(Socket, Ssl);
+                {'EXIT', {killed, _}} -> catch lhttpc_sock:close(Socket, Ssl);
                 ok -> ok
             end,
             ok;
@@ -280,7 +280,7 @@ client_done(Pool, Host, Port, Ssl, Socket) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec init(any()) -> {ok, #httpc_man{}}.
+-spec init(any()) -> {ok, httpc_man()}.
 init(Options) ->
     process_flag(priority, high),
     Timeout = proplists:get_value(connection_timeout, Options),
@@ -290,8 +290,8 @@ init(Options) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec handle_call(any(), any(), #httpc_man{}) ->
-    {reply, any(), #httpc_man{}}.
+-spec handle_call(any(), any(), httpc_man()) ->
+    {reply, any(), httpc_man()}.
 handle_call({socket, Pid, Host, Port, Ssl}, {Pid, _Ref} = From, State) ->
     #httpc_man{
         max_pool_size = MaxSize,
@@ -314,7 +314,8 @@ handle_call({socket, Pid, Host, Port, Ssl}, {Pid, _Ref} = From, State) ->
             end
     end;
 handle_call(dump_settings, _, State) ->
-    {reply, [{max_pool_size, State#httpc_man.max_pool_size}, {timeout, State#httpc_man.timeout}], State};
+    {reply, [{max_pool_size, State#httpc_man.max_pool_size}, {timeout, State#httpc_man.timeout}],
+     State};
 handle_call(client_count, _, State) ->
     {reply, dict:size(State#httpc_man.clients), State};
 handle_call(connection_count, _, State) ->
@@ -340,8 +341,8 @@ handle_call({done, Host, Port, Ssl, Socket}, {Pid, _} = From, State) ->
             NewState;
         UnexpectedExc ->
             CloseStatus = (catch lhttpc_sock:close(Socket, Ssl)),
-            error_logger:info_msg("lhttpc_manager, unrecognized socket (close_status ~p) is done (error ~p)",
-                                  [CloseStatus, UnexpectedExc]),
+            error_logger:info_msg("lhttpc_manager, unrecognized socket (close_status ~p) is done "
+                                  "(error ~p)", [CloseStatus, UnexpectedExc]),
             State
     end,
     {noreply, FinalState};
@@ -351,7 +352,7 @@ handle_call(_, _, State) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec handle_cast(any(), #httpc_man{}) -> {noreply, #httpc_man{}}.
+-spec handle_cast(any(), httpc_man()) -> {noreply, httpc_man()}.
 handle_cast({update_timeout, Milliseconds}, State) ->
     {noreply, State#httpc_man{timeout = Milliseconds}};
 handle_cast({set_max_pool_size, Size}, State) ->
@@ -362,7 +363,7 @@ handle_cast(_, State) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec handle_info(any(), #httpc_man{}) -> {noreply, #httpc_man{}}.
+-spec handle_info(any(), httpc_man()) -> {noreply, httpc_man()}.
 handle_info({tcp_closed, Socket}, State) ->
     {noreply, remove_socket(Socket, State)};
 handle_info({ssl_closed, Socket}, State) ->
@@ -394,14 +395,14 @@ handle_info(_, State) ->
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec terminate(any(), #httpc_man{}) -> ok.
+-spec terminate(any(), httpc_man()) -> ok.
 terminate(_, State) ->
     close_sockets(State#httpc_man.sockets).
 
 %%------------------------------------------------------------------------------
 %% @hidden
 %%------------------------------------------------------------------------------
--spec code_change(any(), #httpc_man{}, any()) -> {'ok', #httpc_man{}}.
+-spec code_change(any(), httpc_man(), any()) -> {'ok', httpc_man()}.
 code_change(_, State, _) ->
     {ok, State}.
 
