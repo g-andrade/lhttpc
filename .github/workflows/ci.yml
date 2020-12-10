@@ -1,5 +1,5 @@
 ---
-name: CI for lhttpc
+name: build
 on:
   push:
     branches:

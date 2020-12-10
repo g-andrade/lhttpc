@@ -1,6 +1,6 @@
 # lhttpc
 
-![CI for lhttpc](https://github.com/miniclip/lhttpc/workflows/CI%20for%20lhttpc/badge.svg)
+![build](https://github.com/miniclip/lhttpc/workflows/build/badge.svg)
 [![erlang][erlang badge]][erlang downloads]
 
 [erlang badge]: https://img.shields.io/badge/erlang-%3E%3D19.3-lightgrey
