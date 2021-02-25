@@ -13,8 +13,8 @@ start_client(Port, Clients) ->
 start_client(Host, Port, Clients) when Clients > 0 ->
     {ok, _} = application:ensure_all_started(lhttpc),
     process_flag(trap_exit, true),
-    {ok, Body} = file:read_file("test/1M"),
-    URL = "http://" ++ Host ++ ":" ++ integer_to_list(Port) ++ "/static/1M",
+    {ok, Body} = file:read_file("test/config/1M"),
+    URL = "http://" ++ Host ++ ":" ++ integer_to_list(Port) ++ "/static/config/1M",
     start(Clients, URL, Body, Clients).
 
 start(0, _, _, No) ->
@@ -55,7 +55,7 @@ init(_, _) ->
 handle_continue(_Method, _URI, _Vsn, _ReqHdrs, CBState) ->
     {continue, [], CBState}.
 
-handle_request(_Method, "/static/1M", {1, 1}, _, EntityBody, State) ->
+handle_request(_Method, "/static/config/1M", {1, 1}, _, EntityBody, State) ->
     case EntityBody of
         {identity, EntityState} ->
             case gen_httpd:read_body(complete, 50000, EntityState) of
