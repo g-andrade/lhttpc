@@ -32,6 +32,7 @@
     {description, "Lightweight HTTP Client"},
     {vsn, git},
     {registered, []},
+    {mod, {lhttpc, nil}},
 
     {applications, [
         % OTP dependencies

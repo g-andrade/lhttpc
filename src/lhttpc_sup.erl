@@ -44,8 +44,6 @@
 -export([init/1]).
 
 %%------------------------------------------------------------------------------
-%% @spec () -> {ok, pid()} | {error, Reason}
-%% Reason = atom()
 %% @doc Starts and links to the supervisor.
 %% This is normally called from an application behaviour or from another
 %% supervisor.
