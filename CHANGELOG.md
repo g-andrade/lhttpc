@@ -10,13 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - all types that are exposed via API functions to their respective module's
-`export_type` sections
+`export_type` sections [Paulo Oliveira]
+
+### Changed
+
+- CI from 23.1 to 23.2 [Paulo Oliveira]
+- `rebar.config` to a fresher look-and-feel [Paulo Oliveira]
 
 ### Removed
 
-- lhttpc_types.hrl
-- lhttpc.hrl
-- defined types that are unused internally (and not exported)
+- lhttpc_types.hrl [Paulo Oliveira]
+- lhttpc.hrl [Paulo Oliveira]
+- defined types that are unused internally (and not exported) [Paulo Oliveira]
+- all mentions of `@spec` [Paulo Oliveira]
+- `test/simple_load.erl` [Paulo Oliveira]
 
 ## [3.3.0] - 2020-05-22
 
