@@ -3,20 +3,27 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
-since version `3.0.0`.
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Added
 
-- all types that are exposed via API functions to their respective module's `export_type` sections
+- all types that are exposed via API functions to their respective module's
+`export_type` sections [Paulo Oliveira]
+
+### Changed
+
+- CI from 23.1 to 23.2 [Paulo Oliveira]
+- `rebar.config` to a fresher look-and-feel [Paulo Oliveira]
 
 ### Removed
 
-- lhttpc_types.hrl
-- lhttpc.hrl
-- defined types that are unused internally (and not exported)
+- lhttpc_types.hrl [Paulo Oliveira]
+- lhttpc.hrl [Paulo Oliveira]
+- defined types that are unused internally (and not exported) [Paulo Oliveira]
+- all mentions of `@spec` [Paulo Oliveira]
+- `test/simple_load.erl` [Paulo Oliveira]
 
 ## [3.3.0] - 2020-05-22
 
@@ -119,11 +126,9 @@ since version `3.0.0`.
 - unintelligibility of which test cases failed (main suite)
 - low test coverage due to broken test cases that prevented others from running
 
-#######################################
 ### OLD STYLE CHANGE LOG BELOW
-#######################################
 
-```
+```text
 Version ?:
 * Add support for connect_options
     * Enables the user to pass socket options, for instance ip and port,

@@ -50,10 +50,6 @@
 %%==============================================================================
 
 %%------------------------------------------------------------------------------
-%% @spec header_value(Header, Headers) -> undefined | term()
-%% Header = string()
-%% Headers = [{header(), term()}]
-%% Value = term()
 %% @doc
 %% Returns the value associated with the `Header' in `Headers'.
 %% `Header' must be a lowercase string, since every header is mangled to
@@ -65,11 +61,6 @@ header_value(Hdr, Hdrs) ->
     header_value(Hdr, Hdrs, undefined).
 
 %%------------------------------------------------------------------------------
-%% @spec header_value(Header, Headers, Default) -> Default | term()
-%% Header = string()
-%% Headers = [{string(), term()}]
-%% Value = term()
-%% Default = term()
 %% @doc
 %% Returns the value associated with the `Header' in `Headers'.
 %% `Header' must be a lowercase string, since every header is mangled to
@@ -112,9 +103,6 @@ canonical_header_name(Name) when is_binary(Name) ->
     canonical_header_name(binary_to_list(Name)).
 
 %%------------------------------------------------------------------------------
-%% @spec (Item) -> OtherItem
-%%   Item = atom() | list()
-%%   OtherItem = list()
 %% @doc
 %% Will make any item, being an atom or a list, in to a list. If it is a
 %% list, it is simple returned.
@@ -127,8 +115,6 @@ maybe_atom_to_list(List) ->
     List.
 
 %%------------------------------------------------------------------------------
-%% @spec (URL) -> #lhttpc_url{}
-%%   URL = string()
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
@@ -149,14 +135,6 @@ parse_url(URL) ->
     ).
 
 %%------------------------------------------------------------------------------
-%% @spec (Path, Method, Headers, Host, Port, Body, PartialUpload) -> Request
-%% Path = iolist()
-%% Method = atom() | string()
-%% Headers = [{atom() | string(), string()}]
-%% Host = string()
-%% Port = integer()
-%% Body = iolist()
-%% PartialUpload = true | false
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
@@ -175,9 +153,6 @@ format_request(Path, Method, Hdrs, Host, Port, Body, PartialUpload) ->
     }.
 
 %%------------------------------------------------------------------------------
-%% @spec normalize_method(AtomOrString) -> Method
-%%   AtomOrString = atom() | string()
-%%   Method = string()
 %% @doc
 %% Turns the method in to a string suitable for inclusion in a HTTP request
 %% line.

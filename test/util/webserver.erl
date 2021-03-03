@@ -128,8 +128,8 @@ listen(ProjectRoot, ssl, Addr, Family) ->
         {active, false},
         {ip, Addr},
         verify_0(),
-        {keyfile, filename:join([ProjectRoot, "test", "key.pem"])},
-        {certfile, filename:join([ProjectRoot, "test", "crt.pem"])}
+        {keyfile, filename:join([ProjectRoot, "test", "config/key.pem"])},
+        {certfile, filename:join([ProjectRoot, "test", "config/crt.pem"])}
     ],
     {ok, LS} = ssl:listen(0, Opts),
     LS;

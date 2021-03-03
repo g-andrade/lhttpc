@@ -8,10 +8,12 @@ required migration instructions will be detailed in this file.
 ### Update
 
 - your code to depend on types from `lhttpc:` and `lhttpc_client:` and not (imported)
-`lhttpc_types.hrl` (a simple `dialyzer` procedure should put into evidence what is mis-specified)
+`lhttpc_types.hrl` (a simple `dialyzer` procedure should put into evidence what is
+mis-specified)
 - your code to not depend on `lhttpc.hrl`'s `lhttpc_url` record:
   - if you're "building" the record, you can use
-`lhttpc_client:new_url(Host, Port, Path, IsSSL, User, Password)` where you were once using
+`lhttpc_client:new_url(Host, Port, Path, IsSSL, User, Password)` where you were once
+using
 `#lhttpc_url{ host = Host,
               port = Port,
               path = Path,
@@ -31,8 +33,9 @@ required migration instructions will be detailed in this file.
 
 ### Update
 
-- calls to lhttpc:request/{4,5,6,9} requesting HTTPS URLs which you **do** need to keep
-  insecure, and only if you need to do so, by explicitly using the new `verify_ssl_cert` option:
+- calls to lhttpc:request/{4,5,6,9} requesting HTTPS URLs which you **do** need to
+keep insecure, and only if you need to do so, by explicitly using the new
+`verify_ssl_cert` option:
 
 ```erlang
 % before:

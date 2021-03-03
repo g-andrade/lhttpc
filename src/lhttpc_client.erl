@@ -120,17 +120,6 @@ url(#lhttpc_url{ password = Password }, password) -> Password.
 %%==============================================================================
 
 %%------------------------------------------------------------------------------
-%% @spec (From, Host, Port, Ssl, Path, Method, Hdrs, RequestBody, Options) -> ok
-%%    From = pid()
-%%    Host = string()
-%%    Port = integer()
-%%    Ssl = boolean()
-%%    Method = atom() | string()
-%%    Hdrs = [Header]
-%%    Header = {string() | atom(), string()}
-%%    Body = iolist()
-%%    Options = [Option]
-%%    Option = {connect_timeout, Milliseconds}
 %% @doc
 %% @end
 %%------------------------------------------------------------------------------
@@ -140,12 +129,11 @@ request(From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options) ->
     Result = try
         execute(From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options)
     catch
-        Reason ->
+        throw:Reason ->
             {response, self(), {error, Reason}};
         error:closed ->
             {response, self(), {error, connection_closed}};
-        error:Reason ->
-            Stack = erlang:get_stacktrace(),
+        error:Reason:Stack ->
             {response, self(), {error, {Reason, Stack}}}
     end,
     case Result of
@@ -289,9 +277,9 @@ send_request(#client_state{socket = undefined} = State) ->
     catch
         exit:{{{badmatch, {error, {asn1, _}}}, _}, _} ->
             throw(ssl_decode_error);
-        Type:Error ->
+        Type:Error:Stack ->
             error_logger:error_msg("Socket connection error: ~p ~p, ~p",
-                                   [Type, Error, erlang:get_stacktrace()])
+                                   [Type, Error, Stack])
     end;
 send_request(#client_state{proxy = #lhttpc_url{}, proxy_setup = false} = State) ->
 % use a proxy.
@@ -848,8 +836,8 @@ read_chunk(Socket, Ssl, Size) ->
 %%------------------------------------------------------------------------------
 %% @private
 %%------------------------------------------------------------------------------
--spec read_trailers(lhttpc:socket(), boolean(), any(), any()) ->
-                           {any(), any()} | no_return().
+-spec read_trailers(lhttpc:socket(), boolean(), [{[any()], any()}], [{[any()], any()}]) ->
+                           {[{any(), any()}], [{any(), any()}]} | no_return().
 read_trailers(Socket, Ssl, Trailers, Hdrs) ->
     lhttpc_sock:setopts(Socket, [{packet, httph}], Ssl),
     case lhttpc_sock:recv(Socket, Ssl) of

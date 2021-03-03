@@ -28,19 +28,26 @@
 %%% @author Oscar Hellström <oscar@hellstrom.st>
 %%% @doc This is the specification for the lhttpc application.
 %%% @end
-{application, lhttpc,
-    [{description, "Lightweight HTTP Client"},
-        {vsn, git},
-        {modules, []},
-        {registered, [lhttpc_manager]},
-        {applications, [kernel, stdlib, ssl, crypto,
-                        inets,
-                        %% External dependencies
-                        parse_trans,
-                        tls_certificate_check,
-                        stacktrace_compat
-                       ]},
-  {mod, {lhttpc, nil}},
-  {env, [{connection_timeout, 300000}, {pool_size, 50}]}
- ]}.
+{application, lhttpc, [
+    {description, "Lightweight HTTP Client"},
+    {vsn, git},
+    {registered, []},
+    {mod, {lhttpc, nil}},
 
+    {applications, [
+        % OTP dependencies
+        crypto,
+        inets,
+        kernel,
+        ssl,
+        stdlib,
+        % External dependencies
+        parse_trans,
+        tls_certificate_check
+    ]},
+
+    {env, [
+        {connection_timeout, 300000},
+        {pool_size, 50}
+    ]}
+]}.
