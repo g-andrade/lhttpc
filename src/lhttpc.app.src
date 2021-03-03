@@ -43,7 +43,6 @@
         stdlib,
         % External dependencies
         parse_trans,
-        stacktrace_compat,
         tls_certificate_check
     ]},
 
