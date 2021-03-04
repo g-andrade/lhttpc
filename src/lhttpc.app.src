@@ -45,7 +45,6 @@
         ssl,
         stdlib,
         % External dependencies
-        parse_trans,
         tls_certificate_check
     ]},
 
