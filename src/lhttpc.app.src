@@ -33,6 +33,9 @@
     {vsn, git},
     {registered, []},
     {mod, {lhttpc, nil}},
+    {pkg_name, mc_lhttpc},
+    {licenses, ["BSD License"]},
+    {links, [{"GitHub", "https://github.com/miniclip/lhttpc"}]},
 
     {applications, [
         % OTP dependencies

@@ -5,12 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-
-- all types that are exposed via API functions to their respective module's
-`export_type` sections [Paulo Oliveira]
+## [4.1.0] - 2021-03-04
 
 ### Changed
 
@@ -19,11 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- all mentions of `@spec` [Paulo Oliveira]
+- `test/simple_load.erl` [Paulo Oliveira]
+
+## [4.0.0] - 2020-12-10
+
+### Added
+
+- all types that are exposed via API functions to their respective module's
+`export_type` sections [Paulo Oliveira]
+
+### Removed
+
 - lhttpc_types.hrl [Paulo Oliveira]
 - lhttpc.hrl [Paulo Oliveira]
 - defined types that are unused internally (and not exported) [Paulo Oliveira]
-- all mentions of `@spec` [Paulo Oliveira]
-- `test/simple_load.erl` [Paulo Oliveira]
 
 ## [3.3.0] - 2020-05-22
 
